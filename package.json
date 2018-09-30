@@ -1,0 +1,36 @@
+{
+  "name": "create-robbj-node",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Project setup by robb-j/node-base",
+  "main": "src/index.js",
+  "scripts": {
+    "coverage": "jest --coverage",
+    "lint": "eslint src test",
+    "postversion": "node tools/buildAndPush.js latest",
+    "start": "node src",
+    "test": "jest",
+    "watch": "nodemon src --watch src"
+  },
+  "author": "robb-j",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/cors": "^2.2.2",
+    "axios": "^0.18.0",
+    "dotenv": "^6.0.0",
+    "koa": "^2.5.3",
+    "koa-json": "^2.0.2",
+    "koa-router": "^7.4.0"
+  },
+  "devDependencies": {
+    "ajv": "^6.5.4",
+    "eslint": "^5.6.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^23.6.0",
+    "nodemon": "^1.18.4"
+  }
+}
