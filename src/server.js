@@ -9,7 +9,7 @@ function cardEndpoint (listId, name) {
   return async (ctx, next) => {
     if (!listId) ctx.throw(400, `${name} api disabled`)
     ctx.body = {
-      [name]: await fetchCards(process.env.PAGE_LIST)
+      [name]: await fetchCards(listId)
     }
   }
 }
@@ -29,8 +29,8 @@ function makeServer () {
   })
   
   router.get('/pages', cardEndpoint(process.env.PAGE_LIST, 'pages'))
-  router.get('/projects', cardEndpoint(process.env.PAGE_LIST, 'projects'))
-  router.get('/blog', cardEndpoint(process.env.PAGE_LIST, 'blog'))
+  router.get('/projects', cardEndpoint(process.env.PROJECT_LIST, 'projects'))
+  router.get('/blog', cardEndpoint(process.env.BLOG_LIST, 'blog'))
   
   app.use(cors())
     .use(json({ pretty: false, param: 'pretty' }))
