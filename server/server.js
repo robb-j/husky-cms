@@ -1,6 +1,5 @@
 const Koa = require('koa')
 const Router = require('koa-router')
-// const koaSend = require('koa-send')
 const koaStatic = require('koa-static')
 const koaMount = require('koa-mount')
 const json = require('koa-json')
@@ -37,7 +36,6 @@ function makeTemplates () {
     projectList: compilePug('projectList'),
     project: compilePug('project'),
     blog: compilePug('blog'),
-    blogPost: compilePug('blogPost'),
     notFound: compilePug('notFound')
   }
 }

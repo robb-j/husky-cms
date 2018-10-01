@@ -1,8 +1,6 @@
 nav.primary
   .container
-    .columns.is-mobile
-      .column.is-narrow.brand
-        a.is-monospace(href="/") #{sitename}
-      .column.pages
-        each page in sitetree
-          a(href=page.href) #{page.name}
+    a.brand.is-monospace(href="/") #{sitename}
+    span.pages
+      each page in sitetree
+        a(href=page.href) #{page.name}
