@@ -56,7 +56,7 @@ async function pageRoute (ctx) {
   let page = pages.find(p => slug(p.name) === pagename)
   
   if (page) {
-    ctx.body = { page, tree }
+    ctx.renderPug('page', page.name, { page, tree })
   } else {
     ctx.notFound()
   }
@@ -102,6 +102,12 @@ function makeServer () {
   app.context.notFound = function () {
     this.status = 404
     this.body = 'Not Found'
+  }
+  
+  app.context.renderPug = function (template, title, data) {
+    this.body = templates[template]({
+      site: 'r0b.io', title, ...data
+    })
   }
   
   app.use(async (ctx, next) => {

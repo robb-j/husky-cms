@@ -3,7 +3,10 @@ extends ./includes/layout.pug
 block page
   section.section
     .container
-      #page.content
+      pre #{JSON.stringify(page, null, 2)}
+      pre #{JSON.stringify(tree, null, 2)}
+      //- .content
+        :markdown-it #{page.desc}
 
 //- block scripts
   script(src="./js/page.js")
