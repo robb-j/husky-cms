@@ -2,7 +2,7 @@ nav.primary
   .container
     .columns.is-mobile
       .column.is-narrow.brand
-        a(href="/") #{sitename}
+        a.is-monospace(href="/") #{sitename}
       .column.pages
         each page in sitetree
           a(href=page.href) #{page.name}
