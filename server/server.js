@@ -47,12 +47,14 @@ function processCard (card) {
   card.timestamp = dayjs(card.dateLastActivity).format('dddd D MMMM YYYY')
 }
 
+function processProject (project) {
+  processCard(project)
+  const base = sitemode === 'projects' ? '/' : '/projects/'
+  project.href = base + slug(project.name)
+}
+
 function getSiteTree (cardPages) {
   let pages = []
-  // const cardToTree = card => ({
-  //   name: card.name, href: `/${slug(card.name)}`, type: 'page'
-  // })
-  
   const makeNode = (type, href, name) => ({ name, href, type })
   const cardToTree = card => makeNode('page', `/${slug(card.name)}`, card.name)
   
@@ -124,7 +126,7 @@ async function projectListRoute (ctx) {
   let parent = sitetree.find(p => p.type === 'projects')
   
   // Process projects
-  projects.forEach(processCard)
+  projects.forEach(processProject)
   
   if (!ctx.params.project) {
     const filters = getFilters(projects)
@@ -179,7 +181,7 @@ function makeServer () {
   
   router.get('/projects.json', async (ctx, next) => {
     let projects = await fetchCards(projectListId)
-    projects.forEach(processCard)
+    projects.forEach(processProject)
     ctx.body = { projects }
   })
   

@@ -2,7 +2,7 @@ extends ./includes/layout.pug
 
 block page
   #project
-    .hero.is-info.is-bold
+    .hero.is-primary.is-small
       .hero-body
         .container
           h1.title #{project.name}
@@ -15,4 +15,3 @@ block page
       .container.card-content
         .content !{project.content}
         p.card-timestamp updated: #{project.timestamp}
-        

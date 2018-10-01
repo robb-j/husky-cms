@@ -33,20 +33,75 @@ let filters = {
 
 function projectTags (proj) {
   return []
-    .concat(proj.labels.map(label => `#${label.name || label.color}`))
-    .concat(proj.members.map(member => `@${member.fullName}`))
+    .concat(proj.labels.map(label => ({
+      name: `#${label.name || label.color}`, color: tagColors[label.color]
+    })))
+    .concat(proj.members.map(member => ({
+      name: `@${member.fullName}`
+    })))
+}
+
+function projectClasses (proj) {
+  let classes = [ 'project-item' ]
+  if (!projectIcon(proj)) classes.push('no-cover')
+  return classes.join(' ')
+}
+
+function projectIcon (proj) {
+  if (!proj.idAttachmentCover) return null
+  let attachment = proj.attachments.find(a => a.id === proj.idAttachmentCover)
+  if (!attachment) return
+  return attachment.previews[4].url
+}
+
+function makeCover (proj) {
+  let icon = projectIcon(proj)
+  let attrs = { class: 'cover' }
+  if (icon) attrs.style = `background-image: url(${icon})`
+  return h('a', { href: proj.href }, [
+    h('div', attrs)
+  ])
+}
+
+const tagColors = {
+  green: '#61BD4F',
+  yellow: '#F2D600',
+  orange: '#FF9F1A',
+  red: '#EB5A46',
+  purple: '#C377E0',
+  blue: '#0079BF',
+  sky: '#00C2E0',
+  lime: '#51E897',
+  pink: '#FF78CB',
+  black: '#355263'
+}
+
+function makeTags (project) {
+  let tags = projectTags(project)
+  
+  return h('div', { class: 'tags is-right' }, tags.map(
+    tag => h('span', {
+      class: 'tag is-info',
+      style: tag.color && `background-color: ${tag.color}`
+    }, tag.name)
+  ))
 }
 
 function renderProjects (projects) {
   let elems = projects.map(proj => h(
     'div',
-    { class: 'project-item column is-3' },
+    { class: projectClasses(proj) },
     [
-      h('p', { class: 'project-title' }, proj.name),
-      h('div', { class: 'content' }, proj.content),
-      h('div', { class: 'tags' }, projectTags(proj).map(
-        tag => h('span', { class: 'tag' }, tag)
-      ))
+      h('div', { class: 'inner' }, [
+        makeCover(proj),
+        h('div', { class: 'info' }, [
+          h('p', { class: 'name' }, [
+            h('a', { href: proj.href }, proj.name)
+          ]),
+          // h('div', { class: 'content' }, proj.content),
+          makeTags(proj)
+        ])
+      ])
     ]
   ))
   

@@ -6,14 +6,12 @@ block page
       .hero-body
         .container
           h1.title Projects
-          h2.subtitle The projects we're working on
+          h2.subtitle What we're working on
     section.section
       .container
-        .columns
-          .column
-            #projects.columns.is-multiline
-          .column.is-narrow
-            include includes/filters.pug
+        .project-filters
+          include includes/filters.pug
+          #projects
 
 block scripts
   script(src="/dist/projects.js")
