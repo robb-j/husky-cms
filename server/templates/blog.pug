@@ -1,7 +1,7 @@
 extends ./includes/layout.pug
 
 block page
-  div
+  #blog
     .hero.is-primary.is-small
       .hero-body
         .container
@@ -9,7 +9,10 @@ block page
           h2.subtitle Our latest news &amp; updates
     section.section
       .container
-        #blog
+        each post in posts
+          .blog-post
+            .content !{post.content}
+            p.card-timestamp #{post.timestamp}
 
 //- block scripts
   script(src="./js/blog.js")

@@ -1,4 +1,8 @@
 nav.primary
-  .brand
-    a(href="/") Portfolio
-  .pages
+  .container
+    .columns
+      .column.is-narrow.brand
+        a(href="/") #{site}
+      .column.pages
+        each page in sitetree
+          a(href=page.href) #{page.name}

@@ -1,91 +1,120 @@
 const Koa = require('koa')
 const Router = require('koa-router')
 // const koaSend = require('koa-send')
+const koaStatic = require('koa-static')
+const koaMount = require('koa-mount')
 const json = require('koa-json')
 const cors = require('@koa/cors')
 const pug = require('pug')
+const dayjs = require('dayjs')
 const casex = require('casex')
+const marked = require('marked')
 const { join } = require('path')
 
 const { fetchCards } = require('./trello')
 
 const slug = str => casex(str, 'ca-sa')
 
-// function cardEndpoint (listId, name) {
-//   return async (ctx, next) => {
-//     if (!listId) ctx.throw(400, `${name} api disabled`)
-//     ctx.body = {
-//       [name]: await fetchCards(listId)
-//     }
-//   }
-// }
+const pageListId = process.env.PAGE_LIST
+const projectListId = process.env.PROJECT_LIST
+const blogListId = process.env.BLOG_LIST
 
-const makeTemplate = p => pug.compileFile(join(__dirname, p))
+const compilePug = path => pug.compileFile(
+  join(__dirname, `templates/${path}.pug`)
+)
 
-const templates = {
-  page: makeTemplate('templates/page.pug'),
-  projectList: makeTemplate('templates/projectList.pug'),
-  project: makeTemplate('templates/project.pug'),
-  blog: makeTemplate('templates/blog.pug'),
-  blogPost: makeTemplate('templates/blogPost.pug'),
-  notFound: makeTemplate('templates/notFound.pug')
+let sitemode
+if (!pageListId && !projectListId && blogListId) sitemode = 'blog'
+else if (!pageListId && projectListId && !blogListId) sitemode = 'projects'
+else if (!pageListId) console.log('PAGE_LIST is required') || process.exit(1)
+else sitemode = 'all'
+
+function makeTemplates () {
+  return {
+    page: compilePug('page'),
+    projectList: compilePug('projectList'),
+    project: compilePug('project'),
+    blog: compilePug('blog'),
+    blogPost: compilePug('blogPost'),
+    notFound: compilePug('notFound')
+  }
+}
+
+function processCard (card) {
+  card.content = marked(card.desc)
+  card.timestamp = dayjs(card.dateLastActivity).format('dddd D MMMM YYYY')
 }
 
 function getSiteTree (cardPages) {
-  let pages = cardPages.map(p => ({
-    name: p.name,
-    href: '/' + slug(p.name)
-  })).filter(p => p.href !== '/home')
+  let pages = []
+  // const cardToTree = card => ({
+  //   name: card.name, href: `/${slug(card.name)}`, type: 'page'
+  // })
   
-  if (process.env.PROJECT_LIST) {
-    pages.unshift({ href: '/projects', name: 'Projects' })
+  const makeNode = (type, href, name) => ({ name, href, type })
+  const cardToTree = card => makeNode('page', `/${slug(card.name)}`, card.name)
+  
+  if (sitemode !== 'all') {
+    // Have a single page if in 'blog' or 'projects' mode
+    pages.push(makeNode(sitemode, casex(sitemode, 'Ca Se'), '/'))
+  } else {
+    // If in 'all' mode, add any pages we can
+    if (projectListId) pages.push(makeNode('projects', '/projects', 'Projects'))
+    if (blogListId) pages.push(makeNode('blog', '/blog', 'Blog'))
+    
+    if (pageListId) {
+      pages = pages.concat(
+        cardPages.map(cardToTree)
+      )
+    }
   }
   
-  if (process.env.BLOG_LIST) {
-    pages.unshift({ href: '/blog', name: 'Blog' })
-  }
-  
-  return pages
+  // Filter out the root and/or home page
+  return pages.filter(p => p.href !== '/' && p.href !== '/home')
 }
 
 async function pageRoute (ctx) {
-  let pages = await fetchCards(process.env.PAGE_LIST)
-  let tree = getSiteTree(pages)
+  let pages = await fetchCards(pageListId)
+  let sitetree = getSiteTree(pages)
   
   let pagename = ctx.params.page || 'home'
   let page = pages.find(p => slug(p.name) === pagename)
   
   if (page) {
-    ctx.renderPug('page', page.name, { page, tree })
+    let content = marked(page.desc)
+    ctx.renderPug('page', page.name, { page, sitetree, content })
   } else {
     ctx.notFound()
   }
 }
 
 async function blogRoute (ctx) {
-  let pages = await fetchCards(process.env.PAGE_LIST)
-  let tree = getSiteTree(pages)
-  let posts = await fetchCards(process.env.BLOG_LIST)
+  let pages = await fetchCards(pageListId)
+  let sitetree = getSiteTree(pages)
+  let posts = await fetchCards(blogListId)
   
-  if (!ctx.params.post) {
-    ctx.body = { posts, tree }
-  } else {
-    let post = posts.find(p => slug(p.name) === ctx.params.post)
-    if (post) ctx.body = { post, tree }
-    else ctx.notFound()
-  }
+  // Process posts
+  posts.forEach(processCard)
+  
+  ctx.renderPug('blog', 'Blog', { posts, sitetree })
 }
 
 async function projectListRoute (ctx) {
-  let pages = await fetchCards(process.env.PAGE_LIST)
-  let tree = getSiteTree(pages)
-  let projects = await fetchCards(process.env.PROJECT_LIST)
+  let pages = await fetchCards(pageListId)
+  let sitetree = getSiteTree(pages)
+  let projects = await fetchCards(projectListId)
+  
+  let parent = sitetree.find(p => p.type === 'projects')
+  console.log(sitetree)
+  
+  // Process projects
+  projects.forEach(processCard)
   
   if (!ctx.params.project) {
-    ctx.body = { projects, tree }
+    ctx.renderPug('projectList', 'Projects', { projects, sitetree })
   } else {
     let project = projects.find(p => slug(p.name) === ctx.params.project)
-    if (project) ctx.body = { project, tree }
+    if (project) ctx.renderPug('project', project.name, { project, sitetree, parent })
     else ctx.notFound()
   }
 }
@@ -98,6 +127,7 @@ function makeServer () {
   
   const app = new Koa()
   const router = new Router()
+  let templates = makeTemplates()
   
   app.context.notFound = function () {
     this.status = 404
@@ -105,40 +135,60 @@ function makeServer () {
   }
   
   app.context.renderPug = function (template, title, data) {
-    this.body = templates[template]({
-      site: 'r0b.io', title, ...data
-    })
+    let render = process.env.NODE_ENV.startsWith('dev')
+      ? compilePug(template)
+      : templates[template]
+    
+    this.body = render(Object.assign(
+      { site: 'r0b.io', title },
+      data
+    ))
   }
   
   app.use(async (ctx, next) => {
     try {
       await next()
     } catch (err) {
+      console.log(err.message)
       ctx.status = err.status || 500
       ctx.body = { msg: err.message }
       ctx.app.emit('error', err, ctx)
     }
   })
   
-  if (process.env.PROJECT_LIST) {
-    router.get('/projects', projectListRoute)
-    router.get('/projects/:project', projectListRoute)
+  router.get('/projects.json', async (ctx, next) => {
+    let projects = await fetchCards(projectListId)
+    projects.forEach(processCard)
+    ctx.body = { projects }
+  })
+  
+  if (sitemode === 'blog') {
+    router.get('/', blogRoute)
+  } else if (sitemode === 'projects') {
+    router.get('/', projectListRoute)
+    router.get('/:project', projectListRoute)
+  } else {
+    if (blogListId) {
+      router.get('/blog', blogRoute)
+    }
+    
+    if (projectListId) {
+      router.get('/projects/:project', projectListRoute)
+      router.get('/projects', projectListRoute)
+    }
+    
+    router.get('/:page', pageRoute)
+    router.get('/', pageRoute)
   }
   
-  if (process.env.BLOG_LIST) {
-    router.get('/blog/:post', blogRoute)
-    router.get('/blog', blogRoute)
-  }
+  // let dist = new Router()
+  // dist.use(koaStatic('dist'))
+  // router.use('/dist', dist.routes())
   
-  router.get('/:page', pageRoute)
-  router.get('/', pageRoute)
   // router.get('/favicon.png', ctx => koaSend(ctx, 'static/favicon.png'))
   
-  // router.get('/projects', cardEndpoint(process.env.PROJECT_LIST, 'projects'))
-  // router.get('/pages', cardEndpoint(process.env.PAGE_LIST, 'pages'))
-  // router.get('/blog', cardEndpoint(process.env.BLOG_LIST, 'blog'))
-  
   app.use(cors())
+    .use(koaMount('/dist', koaStatic('dist')))
     .use(json({ pretty: false, param: 'pretty' }))
     .use(router.routes())
     .use(router.allowedMethods())

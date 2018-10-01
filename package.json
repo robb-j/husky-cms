@@ -22,11 +22,12 @@
     "casex": "^2.0.0",
     "dayjs": "^1.7.7",
     "dotenv": "^6.0.0",
-    "jstransformer-markdown-it": "^2.1.0",
     "koa": "^2.5.3",
     "koa-json": "^2.0.2",
+    "koa-mount": "^4.0.0",
     "koa-router": "^7.4.0",
     "koa-send": "^5.0.0",
+    "koa-static": "^5.0.0",
     "marked": "^0.5.1",
     "webfontloader": "^1.6.28"
   },
