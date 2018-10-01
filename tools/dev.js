@@ -5,7 +5,10 @@ const { makeServer } = require('../server/server')
 const Bundler = require('parcel-bundler')
 
 let bundler = new Bundler(
-  join(__dirname, '../app/app.js'),
+  [
+    join(__dirname, '../app/app.js'),
+    join(__dirname, '../app/projects.js')
+  ],
   { watch: true }
 )
 

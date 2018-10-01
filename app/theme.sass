@@ -1,5 +1,6 @@
 // Variable customisation ...
 $primary: #c1656b
+$primary: #324a5c
 $body-family: Poppins, sans-serif
 $family-monospace: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace
 
@@ -9,7 +10,6 @@ $family-monospace: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier
 @import ~bulma/sass/layout/_all
 @import ~bulma/sass/grid/_all
 @import ~bulma/sass/components/breadcrumb
-// @import ~bulma/bulma.sass
 
 .is-monospace, pre, code
   font-family: $family-monospace
@@ -22,8 +22,12 @@ nav.primary
   color: $white
   padding: 0.25rem 1.5rem
   font-size: 1.2rem
+  .columns
+    align-items: baseline
   .brand
     font-weight: bold
+    font-size: 1.3em
+    padding-right: 0
   .pages
     a
       font-size: 0.8em
@@ -50,6 +54,22 @@ nav.primary
     padding-bottom: 1em
     &:not(:last-child)
       border-bottom: 3px dashed $border
+
+#filters
+  max-width: 20vw
+  .title
+    margin-bottom: 0.5rem
+  
+  .tags
+    margin-bottom: 0.5rem
+    
+  .tag
+    cursor: pointer
+    user-select: none
+    &.is-active
+      text-decoration: underline
+      background-color: $primary
+      color: $primary-invert
 
 .card-timestamp
   text-align: right

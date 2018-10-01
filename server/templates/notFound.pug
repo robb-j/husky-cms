@@ -1,0 +1,13 @@
+extends ./includes/layout.pug
+
+block page
+  #notFound
+    .hero.is-warning
+      .hero-body
+        .container
+          h1.title Page not found
+          h2.subtitle We couldn't find that page
+    section.section
+      .container.has-text-centered
+        p.is-size-4 Please check your url and try again, or go #[a(href="/") Home]
+  

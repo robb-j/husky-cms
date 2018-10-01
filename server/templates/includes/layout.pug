@@ -1,7 +1,7 @@
 doctype html
 
 head
-  title #{site} | #{title}
+  title #{sitename} | #{title}
   meta(charset="utf-8")
   meta(name="viewport" content="width=device-width, initial-scale=1")
   link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Poppins")
@@ -14,5 +14,4 @@ body
     include ./footer.pug
   
   script(src="/dist/app.js")
-  //- script(src="./js/app.js")
-  //- block scripts
+  block scripts

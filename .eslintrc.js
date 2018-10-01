@@ -7,8 +7,7 @@ module.exports = {
     ecmaVersion: 2017
   },
   env: {
-    node: true,
-    jest: true
+    browser: true
   },
   extends: 'standard',
   

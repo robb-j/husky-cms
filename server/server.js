@@ -13,6 +13,8 @@ const { join } = require('path')
 
 const { fetchCards } = require('./trello')
 
+const requiredConfig = [ 'TRELLO_APP_KEY', 'TRELLO_TOKEN', 'SITE_NAME' ]
+
 const slug = str => casex(str, 'ca-sa')
 
 const pageListId = process.env.PAGE_LIST
@@ -56,7 +58,7 @@ function getSiteTree (cardPages) {
   
   if (sitemode !== 'all') {
     // Have a single page if in 'blog' or 'projects' mode
-    pages.push(makeNode(sitemode, casex(sitemode, 'Ca Se'), '/'))
+    pages.push(makeNode(sitemode, '/', casex(sitemode, 'Ca Se')))
   } else {
     // If in 'all' mode, add any pages we can
     if (projectListId) pages.push(makeNode('projects', '/projects', 'Projects'))
@@ -99,29 +101,48 @@ async function blogRoute (ctx) {
   ctx.renderPug('blog', 'Blog', { posts, sitetree })
 }
 
+function getFilters (projects) {
+  let allTags = new Map()
+  let allUsers = new Map()
+  
+  projects.forEach(project => {
+    project.labels.forEach(label => allTags.set(label.id, label))
+    project.members.forEach(member => allUsers.set(member.id, member))
+  })
+  
+  return {
+    tags: Array.from(allTags.values()),
+    users: Array.from(allUsers.values())
+  }
+}
+
 async function projectListRoute (ctx) {
   let pages = await fetchCards(pageListId)
   let sitetree = getSiteTree(pages)
   let projects = await fetchCards(projectListId)
   
   let parent = sitetree.find(p => p.type === 'projects')
-  console.log(sitetree)
   
   // Process projects
   projects.forEach(processCard)
   
   if (!ctx.params.project) {
-    ctx.renderPug('projectList', 'Projects', { projects, sitetree })
+    const filters = getFilters(projects)
+    ctx.renderPug('projectList', 'Projects', { projects, sitetree, filters })
   } else {
     let project = projects.find(p => slug(p.name) === ctx.params.project)
-    if (project) ctx.renderPug('project', project.name, { project, sitetree, parent })
-    else ctx.notFound()
+    if (project) {
+      ctx.renderPug('project', project.name, { project, sitetree, parent })
+    } else ctx.notFound()
   }
 }
 
 function makeServer () {
-  if (!process.env.TRELLO_APP_KEY || !process.env.TRELLO_TOKEN) {
-    console.log('Invalid Trello auth')
+  // Find missing configuration
+  let missing = requiredConfig.filter(name => process.env[name] === undefined)
+  
+  if (missing.length > 0) {
+    console.log('Missing configuration:', missing.map(v => `'${v}'`).join(', '))
     process.exit(1)
   }
   
@@ -131,16 +152,16 @@ function makeServer () {
   
   app.context.notFound = function () {
     this.status = 404
-    this.body = 'Not Found'
+    this.renderPug('notFound', 'Not Found')
   }
   
-  app.context.renderPug = function (template, title, data) {
+  app.context.renderPug = function (template, title, data = { sitetree: [] }) {
     let render = process.env.NODE_ENV.startsWith('dev')
       ? compilePug(template)
       : templates[template]
     
     this.body = render(Object.assign(
-      { site: 'r0b.io', title },
+      { sitename: process.env.SITE_NAME, title },
       data
     ))
   }

@@ -1,9 +1,6 @@
 import '@babel/polyfill'
-import './sass/theme.sass'
-// import WebFont from 'webfontloader'
+import './theme.sass'
 
-(async () => {
-  console.log('...')
-  
-  // WebFont.load({ google: { families: [ 'Poppins' ] } })
+(() => {
+  console.log('Hey!')
 })()
