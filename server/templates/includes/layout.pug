@@ -1,0 +1,15 @@
+doctype html
+
+head
+  title Hey ...
+  meta(charset="utf-8")
+  meta(name="viewport" content="width=device-width, initial-scale=1")
+
+body.cloak
+  #app
+    include ./nav.pug
+    block page
+    include ./footer.pug
+  
+  script(src="./js/app.js")
+  block scripts

@@ -9,6 +9,8 @@ const trello = axios.create({
 })
 
 function fetchCards (listId, name) {
+  if (!listId) return []
+  
   return trello.get(`/lists/${listId}/cards`, {
     params: {
       fields: 'desc,descData,labels,name,pos,url,idAttachmentCover,dateLastActivity',
