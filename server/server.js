@@ -95,7 +95,6 @@ async function blogRoute (ctx) {
   let sitetree = getSiteTree(pages)
   let posts = await fetchCards(blogListId)
   
-  // Process posts
   posts.forEach(processCard)
   
   ctx.renderPug('blog', 'Blog', { posts, sitetree })
@@ -123,7 +122,6 @@ async function projectListRoute (ctx) {
   
   let parent = sitetree.find(p => p.type === 'projects')
   
-  // Process projects
   projects.forEach(processProject)
   
   if (!ctx.params.project) {
@@ -201,12 +199,6 @@ function makeServer () {
     router.get('/:page', pageRoute)
     router.get('/', pageRoute)
   }
-  
-  // let dist = new Router()
-  // dist.use(koaStatic('dist'))
-  // router.use('/dist', dist.routes())
-  
-  // router.get('/favicon.png', ctx => koaSend(ctx, 'static/favicon.png'))
   
   app.use(cors())
     .use(koaMount('/dist', koaStatic('dist')))
