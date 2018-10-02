@@ -38,7 +38,7 @@ Use [Trello](https://trello.com) as a CMS and use it to create & manage a websit
 
   services:
     husky-site:
-      image: unplatform:/husky-cms:latest
+      image: unplatform/husky-cms:latest
       ports:
         - 3000:3000
       environment:
