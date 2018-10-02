@@ -6,10 +6,13 @@ const Bundler = require('parcel-bundler')
 
 let bundler = new Bundler(
   [
-    join(__dirname, '../app/app.js'),
+    join(__dirname, '../app/theme.sass'),
     join(__dirname, '../app/projects.js')
   ],
-  { watch: true }
+  {
+    watch: true,
+    hmr: process.env.NODE_ENV === 'development'
+  }
 )
 
 ;(async () => {

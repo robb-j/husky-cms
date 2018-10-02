@@ -76,7 +76,7 @@ function getSiteTree (cardPages) {
 }
 
 async function pageRoute (ctx) {
-  let pages = await fetchCards(pageListId)
+  let pages = await fetchCards(pageListId, ctx.query.nocache !== undefined)
   let sitetree = getSiteTree(pages)
   
   let pagename = ctx.params.page || 'home'
@@ -91,9 +91,9 @@ async function pageRoute (ctx) {
 }
 
 async function blogRoute (ctx) {
-  let pages = await fetchCards(pageListId)
+  let pages = await fetchCards(pageListId, ctx.query.nocache !== undefined)
   let sitetree = getSiteTree(pages)
-  let posts = await fetchCards(blogListId)
+  let posts = await fetchCards(blogListId, ctx.query.nocache !== undefined)
   
   posts.forEach(processCard)
   
@@ -116,9 +116,9 @@ function getFilters (projects) {
 }
 
 async function projectListRoute (ctx) {
-  let pages = await fetchCards(pageListId)
+  let pages = await fetchCards(pageListId, ctx.query.nocache !== undefined)
   let sitetree = getSiteTree(pages)
-  let projects = await fetchCards(projectListId)
+  let projects = await fetchCards(projectListId, ctx.query.nocache !== undefined)
   
   let parent = sitetree.find(p => p.type === 'projects')
   
@@ -176,7 +176,7 @@ function makeServer () {
   })
   
   router.get('/projects.json', async (ctx, next) => {
-    let projects = await fetchCards(projectListId)
+    let projects = await fetchCards(projectListId, ctx.query.nocache !== undefined)
     projects.forEach(processProject)
     ctx.body = { projects }
   })
@@ -202,6 +202,7 @@ function makeServer () {
   
   app.use(cors())
     .use(koaMount('/dist', koaStatic('dist')))
+    .use(koaMount('/static', koaStatic('static')))
     .use(json({ pretty: false, param: 'pretty' }))
     .use(router.routes())
     .use(router.allowedMethods())
