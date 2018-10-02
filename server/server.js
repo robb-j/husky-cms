@@ -27,7 +27,6 @@ const compilePug = path => pug.compileFile(
 let sitemode
 if (!pageListId && !projectListId && blogListId) sitemode = 'blog'
 else if (!pageListId && projectListId && !blogListId) sitemode = 'projects'
-else if (!pageListId) console.log('PAGE_LIST is required') || process.exit(1)
 else sitemode = 'all'
 
 function makeTemplates () {
@@ -144,6 +143,11 @@ function makeServer () {
     process.exit(1)
   }
   
+  if (sitemode === 'all' && !process.env.PAGE_LIST) {
+    console.log(`Missing configuration: 'PAGE_LIST'`)
+    process.exit(1)
+  }
+  
   const app = new Koa()
   const router = new Router()
   let templates = makeTemplates()
@@ -154,7 +158,7 @@ function makeServer () {
   }
   
   app.context.renderPug = function (template, title, data = { sitetree: [] }) {
-    let render = process.env.NODE_ENV.startsWith('dev')
+    let render = process.env.NODE_ENV === 'development'
       ? compilePug(template)
       : templates[template]
     

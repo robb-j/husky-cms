@@ -1,19 +1,20 @@
 {
-  "name": "create-robbj-node",
+  "name": "husky-cms",
   "private": true,
   "version": "0.1.0",
   "description": "Project setup by robb-j/node-base",
   "main": "src/index.js",
+  "author": "robb-j",
+  "license": "ISC",
   "scripts": {
     "coverage": "jest --coverage",
     "lint": "eslint src test",
     "postversion": "node tools/buildAndPush.js latest",
-    "start": "node src",
+    "start": "node server",
     "test": "jest",
-    "watch": "nodemon src --watch src"
+    "build": "parcel build app/projects.js app/theme.sass",
+    "dev": "node tools/dev.js"
   },
-  "author": "robb-j",
-  "license": "ISC",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
     "@koa/cors": "^2.2.2",
@@ -28,7 +29,8 @@
     "koa-router": "^7.4.0",
     "koa-send": "^5.0.0",
     "koa-static": "^5.0.0",
-    "marked": "^0.5.1"
+    "marked": "^0.5.1",
+    "pug": "^2.0.3"
   },
   "devDependencies": {
     "ajv": "^6.5.4",
@@ -45,7 +47,6 @@
     "jest": "^23.6.0",
     "nodemon": "^1.18.4",
     "parcel-bundler": "^1.10.1",
-    "pug": "^2.0.3",
     "sass": "^1.14.1"
   }
 }
