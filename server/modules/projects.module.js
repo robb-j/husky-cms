@@ -1,6 +1,12 @@
-const { fetchCards } = require('../trello')
-const { processCard, slug } = require('../utils')
+//
+// Projects module
+// Adds a page which uses a trello list as a filterable project showcase
+//
 
+const { processCard, slug, fetchCards } = require('../utils')
+const projectListId = process.env.PROJECT_LIST
+
+/** Get the tags/users to filter for on an array or projects */
 function getFilters (projects) {
   let allTags = new Map()
   let allUsers = new Map()
@@ -16,41 +22,44 @@ function getFilters (projects) {
   }
 }
 
-async function projectListRoute (ctx) {
-  let { sitemode, sitetree } = ctx
-  let projects = await fetchCards(projectListId, ctx.query.nocache !== undefined)
-
-  let parent = sitetree.find(p => p.type === 'projects')
-  console.log(sitetree)
-  console.log(parent)
-
-  projects.forEach(p => processProject(p, sitemode))
-
-  if (!ctx.params.project) {
-    const filters = getFilters(projects)
-    ctx.renderPug('projectList', 'Projects', { projects, sitetree, filters })
-  } else {
-    let project = projects.find(p => slug(p.name) === ctx.params.project)
-    if (project) {
-      ctx.renderPug('project', project.name, { project, sitetree, parent })
-    } else ctx.notFound()
-  }
-}
-
+/** Add custom fields onto project cards */
 function processProject (project, sitemode) {
   processCard(project)
   const base = sitemode === 'projects' ? '/' : '/projects/'
   project.href = base + slug(project.name)
 }
 
-const projectListId = process.env.PROJECT_LIST
+/** A koa route to render a project detail or project index page */
+async function projectListRoute (ctx) {
+  let { sitemode, sitetree } = ctx
+  let projects = await fetchCards(projectListId, ctx.query.nocache !== undefined)
+  
+  // Get the parent page
+  let parent = sitetree.find(p => p.type === 'projects')
+  
+  projects.forEach(p => processProject(p, sitemode))
+  
+  // If not serving a specific project, return the index page
+  if (!ctx.params.project) {
+    const filters = getFilters(projects)
+    ctx.renderPug('projectList', 'Projects', { projects, filters })
+  } else {
+    // If a specific project was specified, render that project
+    // Render it or fail if not found
+    let project = projects.find(p => slug(p.name) === ctx.params.project)
+    if (!project) return ctx.notFound()
+    ctx.renderPug('project', project.name, { project, parent })
+  }
+}
 
+/** A koa route to serve the projects as a json array */
 async function projectJson (ctx, next) {
   let projects = await fetchCards(projectListId, ctx.skipCache)
   projects.forEach(p => processProject(p, ctx.sitemode))
   ctx.body = { projects }
 }
 
+// Register the plugin
 module.exports = function (husky) {
   husky.registerPageType('projects', {
     name: 'Projects',

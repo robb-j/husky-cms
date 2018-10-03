@@ -1,16 +1,14 @@
+//
+// Trello utilities, helpers for accessing and manipulating Trello cards
+//
+
 const axios = require('axios')
 const dayjs = require('dayjs')
-
-const trello = axios.create({
-  baseURL: 'https://api.trello.com/1',
-  params: {
-    key: process.env.TRELLO_APP_KEY,
-    token: process.env.TRELLO_TOKEN
-  }
-})
+const marked = require('marked')
 
 const listsCache = new Map()
 
+/** See if a list's card are already cached locally */
 function checkListCache (listId) {
   let hit = listsCache.get(listId)
   if (!hit) return null
@@ -21,6 +19,22 @@ function checkListCache (listId) {
     : cards
 }
 
+/** An axios client for accessing Trello with configured credentials */
+const trello = axios.create({
+  baseURL: 'https://api.trello.com/1',
+  params: {
+    key: process.env.TRELLO_APP_KEY,
+    token: process.env.TRELLO_TOKEN
+  }
+})
+
+/** Process a trello card, rendering markdown and adding it's formatted timestampe */
+function processCard (card) {
+  card.content = marked(card.desc)
+  card.timestamp = dayjs(card.dateLastActivity).format('dddd D MMMM YYYY')
+}
+
+/** Fetch cards for a given Trello list */
 async function fetchCards (listId, noCache = false) {
   if (!listId) return []
   
@@ -44,4 +58,4 @@ async function fetchCards (listId, noCache = false) {
   return cards
 }
 
-module.exports = { trello, fetchCards }
+module.exports = { listsCache, trello, processCard, fetchCards }

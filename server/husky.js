@@ -1,24 +1,56 @@
+const { readdirSync } = require('fs')
+const { join } = require('path')
+
 const casex = require('casex')
 
-function collectFromMap (map, key) {
-  let values = []
-  map.forEach(item => {
-    if (!Array.isArray(item[key])) return
-    values = values.concat(item[key])
-  })
-  return values
-}
+const utils = require('./utils')
+const defaultModules = require('./modules')
 
+/** Represents a set of plugin configuration */
 class Husky {
   constructor () {
     this.pages = new Map()
-    this.contentTypes = new Map()
+    // this.contentTypes = new Map()
   }
   
+  /** Load a Husky from a modules directory (absolute path) */
+  static from (path) {
+    let husky = new Husky()
+    
+    // Add the default modules
+    Object.values(defaultModules).forEach(
+      mod => mod(husky, utils)
+    )
+    
+    // Loop through the module directory and look for modules
+    readdirSync(path).map(filename => {
+      if (/^.*.js$/.test(filename) === false) return
+      
+      try {
+        // Try to require the .js file
+        let fn = require(join(path, filename))
+        
+        // Fail if it didn't export a function
+        if (typeof fn !== 'function') {
+          throw new Error(`Bad plugin '${filename}'`)
+        }
+        
+        // Call the function with the instance and utils
+        fn(husky, utils)
+      } catch (error) {
+        console.log(error)
+      }
+    })
+    
+    return husky
+  }
+  
+  /** Get all the registered templates */
   get templates () {
-    return collectFromMap(this.pages, 'templates')
+    return utils.collectArrayFromMap(this.pages, 'templates')
   }
   
+  /** Get the pages which are active according to the environemt vars set */
   activePages () {
     let pages = new Map()
     this.pages.forEach((Page, type) => {
@@ -28,6 +60,7 @@ class Husky {
     return pages
   }
   
+  /** Get the site mode based on the environemt vars set */
   getSitemode () {
     if (process.env.PAGE_LIST) return 'all'
     
@@ -40,6 +73,7 @@ class Husky {
     return found
   }
   
+  /** Register a new page type */
   registerPageType (name, Page) {
     Page.name = Page.name || casex(name, 'Ca Se')
     Page.variables = Page.variables || []
@@ -48,9 +82,9 @@ class Husky {
     this.pages.set(name, Page)
   }
   
-  registerContentType (name, parser, options) {
-    this.contentTypes.set(name, { parser, options })
-  }
+  // registerContentType (name, parser, options) {
+  //   this.contentTypes.set(name, { parser, options })
+  // }
 }
 
 module.exports = { Husky }

@@ -9,17 +9,10 @@ const json = require('koa-json')
 const cors = require('@koa/cors')
 const marked = require('marked')
 
-const { fetchCards } = require('./trello')
-const { slug, compilePug, requiredConfig } = require('./utils')
+const utils = require('./utils')
 const { Husky } = require('./husky')
 const defaultModules = require('./modules')
-
-function makeTemplates (templateNames) {
-  return templateNames.reduce((templates, value) => {
-    templates[value] = compilePug(value)
-    return templates
-  }, {})
-}
+const { slug, fetchCards, makeTemplates } = utils
 
 function makeSiteTree (pageCards, husky) {
   const sitemode = husky.getSitemode()
@@ -43,53 +36,26 @@ function makeSiteTree (pageCards, husky) {
 }
 
 async function pageRoute (ctx) {
-  let { pages, sitetree } = ctx
+  let { pages } = ctx
   
   let pagename = ctx.params.page || 'home'
   let page = pages.find(p => slug(p.name) === pagename)
   
   if (page) {
     let content = marked(page.desc)
-    ctx.renderPug('page', page.name, { page, sitetree, content })
+    ctx.renderPug('page', page.name, { page, content })
   } else {
     ctx.notFound()
   }
 }
 
-function loadHusky () {
-  let path = join(__dirname, '..', 'plugins')
-  
-  let contents = readdirSync(path)
-  
-  let husky = new Husky()
-  
-  Object.values(defaultModules).forEach(
-    mod => mod(husky)
+function makeServer () {
+  let husky = Husky.from(
+    join(__dirname, '..', 'plugins')
   )
   
-  contents.map(filename => {
-    if (/^.*.js$/.test(filename) === false) return
-    
-    try {
-      let fn = require(join(path, filename))
-      
-      if (typeof fn !== 'function') {
-        throw new Error(`Bad plugin '${filename}'`)
-      }
-      
-      fn(husky)
-    } catch (error) {
-      console.log(error)
-    }
-  })
-  
-  return husky
-}
-
-function makeServer () {
-  let husky = loadHusky()
-  
   // Find missing configuration
+  const requiredConfig = [ 'TRELLO_APP_KEY', 'TRELLO_TOKEN', 'SITE_NAME' ]
   const missing = requiredConfig.filter(name => process.env[name] === undefined)
   
   if (missing.length > 0) {
@@ -104,26 +70,38 @@ function makeServer () {
     process.exit(1)
   }
   
+  // Create the Koa app to serve html
   const app = new Koa()
   const router = new Router()
+  
+  // Compile templates using the module's registered template too
   let templates = makeTemplates([
     'layout', 'page', 'blog', 'notFound', ...husky.templates
   ])
   
+  // Add ctx#notFound method for easy 404 errors
   app.context.notFound = function () {
     this.status = 404
-    this.renderPug('notFound', 'Not Found', { sitetree: this.sitetree })
+    this.renderPug('notFound', 'Not Found')
   }
   
-  app.context.renderPug = function (template, title, data = { sitetree: [] }) {
+  // Add ctx#renderPug method for pug rendering using templates
+  app.context.renderPug = function (template, title, data = { }) {
     let renderLayout = templates['layout']
     let renderPage = templates[template]
-    let base = { sitename: process.env.SITE_NAME, title }
+    
+    let base = {
+      sitename: process.env.SITE_NAME, sitetree: this.sitetree, title
+    }
+    
+    // Render the page
     let page = renderPage(Object.assign(base, data))
     
+    // Render the full site with the page in it
     this.body = renderLayout(Object.assign(base, { page }))
   }
   
+  // Catch errors and display them
   app.use(async (ctx, next) => {
     try {
       await next()
@@ -135,6 +113,7 @@ function makeServer () {
     }
   })
   
+  // Add ctx fields for module's use later
   app.use(async (ctx, next) => {
     ctx.sitemode = sitemode
     ctx.skipCache = ctx.query.nocache !== undefined
@@ -144,6 +123,12 @@ function makeServer () {
     await next()
   })
   
+  //
+  // Add routes based on the sitemode
+  //
+  
+  // If showing all pages, add any routes we can
+  // A module's page is added if all its variables are set
   if (sitemode === 'all') {
     husky.activePages().forEach((Page, type) => {
       // Add the page's routes
@@ -162,12 +147,14 @@ function makeServer () {
   } else {
     let Page = husky.pages.get(sitemode)
     
+    // If only showing a single page, just render that module's routes
     Object.keys(Page.routes).forEach(path => {
       let newPath = path.replace(/^\.\//, '/')
       router.get(newPath, Page.routes[path])
     })
   }
   
+  // Setup the app with cors, serving /dist & /static and using the router
   app.use(cors())
     .use(koaMount('/dist', koaStatic('dist')))
     .use(koaMount('/static', koaStatic('static')))
@@ -178,4 +165,4 @@ function makeServer () {
   return app
 }
 
-module.exports = { makeServer, loadHusky }
+module.exports = { makeServer }

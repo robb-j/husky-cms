@@ -1,16 +1,18 @@
-const { fetchCards } = require('../trello')
-const { processCard } = require('../utils')
+//
+// Blog module
+// Adds a page which uses a trello list as a chronological blog
+//
 
+const { processCard, fetchCards } = require('../utils')
+
+/** A koa route to render the blog page */
 async function blogRoute (ctx) {
-  const { sitetree } = ctx
-  
   let posts = await fetchCards(process.env.BLOG_LIST, ctx.skipCache)
-  
   posts.forEach(processCard)
-  
-  ctx.renderPug('blog', 'Blog', { posts, sitetree })
+  ctx.renderPug('blog', 'Blog', { posts })
 }
 
+// Register the plugin
 module.exports = function (husky) {
   husky.registerPageType('blog', {
     name: 'Blog',
