@@ -10,6 +10,7 @@ Use [Trello](https://trello.com) as a CMS and use it to create & manage a websit
 * Showcase projects, which is a different Trello list, then filter and view them
 * Configurable structure, showing only the pages you want
 * Content caching so you don't get rate limited and page loads are fast
+* Plugin system for dynamically adding your own page types
 
 ## Setup
 
@@ -65,6 +66,72 @@ If you have `PAGE_LIST` set, the site will show multiple pages
 **Important** – When using `PAGE_LIST`, Husky uses a card named `Home` as the root page of your site.
 
 **Important** – When editing content add `?nocache` to your URL otherwise content won't update straight away
+
+### Plugins
+
+Husky uses plugins to add different page types, for examples see [server/modules](/server/modules). To add your own plugins, mount them in with a docker volume.
+
+```yml
+volumes:
+  - ./my_plugin.js:/app/plugins/my_plugin.js
+  - ./my_template.pug:/app/plugins/templates/my_template.pug
+```
+
+Here's an example plugin, **my_plugin.js**
+
+```js
+function route (ctx) {
+  
+  // Available variables:
+  const { sitemode, skipCache, pages, sitetree, husky } = ctx
+  
+  const message = process.env.MESSAGE
+  ctx.renderPug('my_template', 'My Page', { message })
+}
+
+module.exports = function (husky, utils) {
+  husky.registerPageType('my_page', {
+    name: 'My Page',
+    templates: [ 'my_template' ],
+    variables: [ 'MESSAGE' ],
+    routes: {
+      './': route
+    }
+  })
+}
+```
+
+And its corresponding template, **my_template.pug**
+
+```pug
+.hero.is-large.is-primary
+  .hero-body
+    .container
+      h1.title Page says: #{message}
+```
+
+This adds a custom page type, `my_page`, which shows when the `MESSAGE` environment variable is set. If only the `MESSAGE` variable is set, it will be the only and root page, `/` otherwise it will be at `/my_page` and appear as `My Page`.
+
+The pug template is rendered inside the site skeleton, which has the theme loaded along with the nav bar and footer above and below it.
+
+Your plugin should expose a single function via `module.exports`, which takes a [husky instance](/server/husky.js) and [utils object](/server/utils.js) as parameters.
+
+Husky modifies [Koa](https://www.npmjs.com/package/koa)'s context
+
+field         | type   | use
+------------- | ------ | ---
+ctx.sitemode  | string | If the site is serving a specific page or any
+ctx.skipCache | bool   | Whether to skip using the trello cache i.e. `?nocache`
+ctx.pages     | card[] | The page cards from the list with id `PAGE_LIST`
+ctx.sitetree  | node[] | The sitetree nodes for the active pages
+ctx.husky     | husky  | The husky reference
+
+It also adds these methods for rendering / errors
+
+```js
+ctx.renderPug(template, title, data)
+ctx.notFound()
+```
 
 ## Development
 
