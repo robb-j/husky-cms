@@ -102,6 +102,7 @@ The server behaves differently depending on what `NODE_ENV` is set
 
 ## Ideas & further work
 
+* Plugin system for modular features, [idea](/IDEAS.md)
 * Display card's attachments, for example:
   * A carousel of images
   * A preview of a git repo
