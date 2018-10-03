@@ -1,17 +1,14 @@
-extends ./includes/layout.pug
-
-block page
-  #project
-    .hero.is-primary.is-small
-      .hero-body
-        .container
-          h1.title #{project.name}
-    .container
-      nav.breadcrumb(aria-label="breadcrumbs")
-        ul
-          li: a(href=parent.href) #{parent.name}
-          li.is-active: a(href="#", aria-current="page") #{project.name}
-    section.section
-      .container.card-content
-        .content !{project.content}
-        p.card-timestamp Updated #{project.timestamp}
+#project
+  .hero.is-primary.is-small
+    .hero-body
+      .container
+        h1.title #{project.name}
+  .container
+    nav.breadcrumb(aria-label="breadcrumbs")
+      ul
+        li: a(href=parent.href) #{parent.name}
+        li.is-active: a(href="#", aria-current="page") #{project.name}
+  section.section
+    .container.card-content
+      .content !{project.content}
+      p.card-timestamp Updated #{project.timestamp}

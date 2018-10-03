@@ -1,4 +1,5 @@
 const { join } = require('path')
+const { existsSync } = require('fs')
 
 const casex = require('casex')
 const pug = require('pug')
@@ -9,9 +10,20 @@ const requiredConfig = [ 'TRELLO_APP_KEY', 'TRELLO_TOKEN', 'SITE_NAME' ]
 
 const slug = str => casex(str, 'ca-sa')
 
-const compilePug = path => pug.compileFile(
-  join(__dirname, `templates/${path}.pug`)
-)
+function compilePug (name) {
+  let paths = [
+    join(__dirname, `templates/${name}.pug`),
+    join(__dirname, `../plugins/templates/${name}.pug`)
+  ]
+  for (let path of paths) {
+    if (!existsSync(path)) continue
+    
+    return process.env.NODE_ENV === 'development'
+      ? (...args) => pug.compileFile(path)(...args)
+      : pug.compileFile(path)
+  }
+  throw new Error(`Invalid template '${name}'`)
+}
 
 function processCard (card) {
   card.content = marked(card.desc)

@@ -7,7 +7,6 @@ const koaStatic = require('koa-static')
 const koaMount = require('koa-mount')
 const json = require('koa-json')
 const cors = require('@koa/cors')
-// const casex = require('casex')
 const marked = require('marked')
 
 const { fetchCards } = require('./trello')
@@ -23,20 +22,24 @@ function makeTemplates (templateNames) {
 }
 
 function makeSiteTree (pageCards, husky) {
-  if (husky.getSitemode() !== 'all') return []
-  
-  let pages = []
+  const sitemode = husky.getSitemode()
   const makeNode = (type, href, name) => ({ name, href, type })
   const cardToTree = card => makeNode('page', `/${slug(card.name)}`, card.name)
   
-  husky.pages.forEach((Page, type) => {
+  if (sitemode !== 'all') {
+    return [ makeNode(sitemode, '/', husky.pages.get(sitemode).name) ]
+  }
+  
+  let pages = []
+  
+  husky.activePages().forEach((Page, type) => {
     pages.push(makeNode(type, `/${type}`, Page.name))
   })
   
   pages = pages.concat(pageCards.map(cardToTree))
   
   // Filter out the root and/or home page
-  return pages.filter(p => p.href !== '/' && p.href !== '/home')
+  return pages // .filter(p => p.href !== '/' && p.href !== '/home')
 }
 
 async function pageRoute (ctx) {
@@ -104,23 +107,21 @@ function makeServer () {
   const app = new Koa()
   const router = new Router()
   let templates = makeTemplates([
-    'page', 'blog', 'notFound', ...husky.templates
+    'layout', 'page', 'blog', 'notFound', ...husky.templates
   ])
   
   app.context.notFound = function () {
     this.status = 404
-    this.renderPug('notFound', 'Not Found')
+    this.renderPug('notFound', 'Not Found', { sitetree: this.sitetree })
   }
   
   app.context.renderPug = function (template, title, data = { sitetree: [] }) {
-    let render = process.env.NODE_ENV === 'development'
-      ? compilePug(template)
-      : templates[template]
+    let renderLayout = templates['layout']
+    let renderPage = templates[template]
+    let base = { sitename: process.env.SITE_NAME, title }
+    let page = renderPage(Object.assign(base, data))
     
-    this.body = render(Object.assign(
-      { sitename: process.env.SITE_NAME, title },
-      data
-    ))
+    this.body = renderLayout(Object.assign(base, { page }))
   }
   
   app.use(async (ctx, next) => {
@@ -144,15 +145,13 @@ function makeServer () {
   })
   
   if (sitemode === 'all') {
-    husky.pages.forEach((Page, pageName) => {
-      if (Page.variables.some(name => process.env[name] === undefined)) return
-      
+    husky.activePages().forEach((Page, type) => {
       // Add the page's routes
       Object.keys(Page.routes).forEach(path => {
         let newPath = path.startsWith('./')
-          ? `/${pageName}/${path.replace('./', '')}`
+          ? `/${type}/${path.replace('./', '')}`
           : path
-        console.log(newPath)
+        
         router.get(newPath, Page.routes[path])
       })
     })
@@ -164,28 +163,10 @@ function makeServer () {
     let Page = husky.pages.get(sitemode)
     
     Object.keys(Page.routes).forEach(path => {
-      router.get(path, Page.routes[path])
+      let newPath = path.replace(/^\.\//, '/')
+      router.get(newPath, Page.routes[path])
     })
   }
-  
-  // if (sitemode === 'blog') {
-  //   router.get('/', blogRoute)
-  // } else if (sitemode === 'projects') {
-  //   router.get('/', projectListRoute)
-  //   router.get('/:project', projectListRoute)
-  // } else {
-  //   if (blogListId) {
-  //     router.get('/blog', blogRoute)
-  //   }
-  //
-  //   if (projectListId) {
-  //     router.get('/projects/:project', projectListRoute)
-  //     router.get('/projects', projectListRoute)
-  //   }
-  //
-  //   router.get('/:page', pageRoute)
-  //   router.get('/', pageRoute)
-  // }
   
   app.use(cors())
     .use(koaMount('/dist', koaStatic('dist')))

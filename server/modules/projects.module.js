@@ -21,6 +21,8 @@ async function projectListRoute (ctx) {
   let projects = await fetchCards(projectListId, ctx.query.nocache !== undefined)
 
   let parent = sitetree.find(p => p.type === 'projects')
+  console.log(sitetree)
+  console.log(parent)
 
   projects.forEach(p => processProject(p, sitemode))
 
@@ -55,9 +57,9 @@ module.exports = function (husky) {
     templates: [ 'project', 'projectList' ],
     variables: [ 'PROJECT_LIST' ],
     routes: {
+      '/projects.json': projectJson,
       './': projectListRoute,
-      './:project': projectListRoute,
-      '/projects.json': projectJson
+      './:project': projectListRoute
     }
   })
 }

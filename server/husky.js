@@ -19,6 +19,15 @@ class Husky {
     return collectFromMap(this.pages, 'templates')
   }
   
+  activePages () {
+    let pages = new Map()
+    this.pages.forEach((Page, type) => {
+      if (Page.variables.some(name => process.env[name] === undefined)) return
+      pages.set(type, Page)
+    })
+    return pages
+  }
+  
   getSitemode () {
     if (process.env.PAGE_LIST) return 'all'
     

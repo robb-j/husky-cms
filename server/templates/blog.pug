@@ -1,15 +1,12 @@
-extends ./includes/layout.pug
-
-block page
-  #blog
-    .hero.is-primary.is-small
-      .hero-body
-        .container
-          h1.title Blog
-          h2.subtitle Latest news &amp; updates
-    section.section
+#blog
+  .hero.is-primary.is-small
+    .hero-body
       .container
-        each post in posts
-          .blog-post
-            .content !{post.content}
-            p.card-timestamp #{post.timestamp}
+        h1.title Blog
+        h2.subtitle Latest news &amp; updates
+  section.section
+    .container
+      each post in posts
+        .blog-post
+          .content !{post.content}
+          p.card-timestamp #{post.timestamp}

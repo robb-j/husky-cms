@@ -3,4 +3,5 @@ nav.primary
     a.brand.is-monospace(href="/") #{sitename}
     span.pages
       each page in sitetree
-        a(href=page.href) #{page.name}
+        if (page.href !== '/')
+          a(href=page.href) #{page.name}

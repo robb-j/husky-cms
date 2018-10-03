@@ -10,9 +10,6 @@ head
   
 body
   #app
-    include ./nav.pug
-    block page
-    include ./footer.pug
-  
-  //- script(src="/dist/app.js")
-  block scripts
+    include ./includes/nav.pug
+    | !{page}
+    include ./includes/footer.pug

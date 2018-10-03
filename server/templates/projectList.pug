@@ -1,17 +1,12 @@
-extends ./includes/layout.pug
-
-block page
-  #projectList
-    .hero.is-primary.is-small
-      .hero-body
-        .container
-          h1.title Projects
-          h2.subtitle Latest projects and contributions
-    section.section
+#projectList
+  .hero.is-primary.is-small
+    .hero-body
       .container
-        .project-filters
-          include includes/filters.pug
-          #projects
-
-block scripts
+        h1.title Projects
+        h2.subtitle Latest projects and contributions
+  section.section
+    .container
+      .project-filters
+        include includes/filters.pug
+        #projects
   script(src="/dist/projects.js")
