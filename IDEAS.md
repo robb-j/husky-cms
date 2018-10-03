@@ -2,7 +2,7 @@
 
 This is a place to sketch out ideas for future features
 
-## Plugins
+## Plugins [Complete]
 
 **plugin.js**
 

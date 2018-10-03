@@ -114,7 +114,7 @@ This adds a custom page type, `my_page`, which shows when the `MESSAGE` environm
 
 The pug template is rendered inside the site skeleton, which has the theme loaded along with the nav bar and footer above and below it.
 
-Your plugin should expose a single function via `module.exports`, which takes a [husky instance](/server/husky.js) and [utils object](/server/utils.js) as parameters.
+Your plugin should expose a single function via `module.exports`, which takes a [husky instance](/server/husky.js) and [utils object](/server/utils/index.js) as parameters.
 
 Husky modifies [Koa](https://www.npmjs.com/package/koa)'s context
 
@@ -169,7 +169,6 @@ The server behaves differently depending on what `NODE_ENV` is set
 
 ## Ideas & further work
 
-* Plugin system for modular features, [idea](/IDEAS.md)
 * Display card's attachments, for example:
   * A carousel of images
   * A preview of a git repo
