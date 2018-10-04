@@ -77,14 +77,17 @@ volumes:
   - ./my_template.pug:/app/plugins/templates/my_template.pug
 ```
 
-Here's an example plugin, **my_plugin.js**
+There are two types of plugin, [Page plugins](#page-plugins) & [Content plugins](#content-plugins).
+
+#### Page plugins
+
+A page plugin adds a type of page to Husky, optionaly rendered if it's variables are set.
+It'll appear in the nav along the top, or at the root if just this page's variables are set.
+
+Here's an example page plugin, **my_plugin.js**
 
 ```js
 function route (ctx) {
-  
-  // Available variables:
-  const { sitemode, skipCache, pages, sitetree, husky } = ctx
-  
   const message = process.env.MESSAGE
   ctx.renderPug('my_template', 'My Page', { message })
 }
@@ -134,6 +137,37 @@ It also adds these methods for rendering / errors
 ctx.renderPug(template, title, data)
 ctx.notFound()
 ```
+
+#### Content plugins
+
+A content plugin lets your customise how a card is rendered into html.
+
+```js
+let pageviews = { }
+
+module.exports = function (husky, utils) {
+  husky.registerContentType('pageviews', {
+    parser: card => {
+      if (!pageviews[card.id]) {
+        pageviews[card.id] = 0
+      }
+      
+      return `<p> Page views: ${++pageviews[card.id]}`
+    },
+    order: 75
+  })
+}
+```
+
+This registers a plugin which adds the pageviews at the bottom of each page. Here is the available config:
+
+> By default each blob is wrapped in a `<div class="content-TYPE">`, where `TYPE` is your plugin name.
+
+field     | type    | use
+--------- | ------- | ---
+parser    | func    | The parser function, takes a card and returns html
+order     | number  | Where to put this content, 0 being earlier, 100 later
+noWrapper | boolean | If you don't want the content to be wrapped in a div
 
 ## Development
 
