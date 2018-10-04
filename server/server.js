@@ -11,30 +11,38 @@ const utils = require('./utils')
 const { Husky } = require('./husky')
 const { slug, fetchCards, makeTemplates } = utils
 
+/** Make the sitetree using the current environment & an array of page cards */
 function makeSiteTree (pageCards, husky) {
   const sitemode = husky.getSitemode()
+  
+  // Util to make a tree node
   const makeNode = (type, href, name) => ({ name, href, type })
+  
+  // Util to convert a page card to a tree node
   const cardToTree = card => {
     let href = `/${slug(card.name)}`
     return makeNode('page', href === '/home' ? '/' : href, card.name)
   }
   
+  // If in not in 'all' mode, show the single page
   if (sitemode !== 'all') {
     return [ makeNode(sitemode, '/', husky.pages.get(sitemode).name) ]
   }
   
+  // Add each active page to the tree
   let pages = []
-  
   husky.activePages().forEach((Page, type) => {
     pages.push(makeNode(type, `/${type}`, Page.name))
   })
   
+  // Add the processed page cards
   pages = pages.concat(pageCards.map(cardToTree))
   
   // Filter out the root and/or home page
   return pages
 }
 
+/** A koa route to serve a single page, from card under PAGE_LIST */
 async function pageRoute (ctx) {
   let { pages } = ctx
   
@@ -49,6 +57,7 @@ async function pageRoute (ctx) {
   }
 }
 
+/** Make a Husky server */
 function makeServer () {
   let husky = Husky.from(
     join(__dirname, '..', 'plugins')
