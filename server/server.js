@@ -1,4 +1,3 @@
-const { readdirSync } = require('fs')
 const { join } = require('path')
 
 const Koa = require('koa')
@@ -11,7 +10,6 @@ const marked = require('marked')
 
 const utils = require('./utils')
 const { Husky } = require('./husky')
-const defaultModules = require('./modules')
 const { slug, fetchCards, makeTemplates } = utils
 
 function makeSiteTree (pageCards, husky) {
@@ -128,10 +126,9 @@ function makeServer () {
   //
   
   // If showing all pages, add any routes we can
-  // A module's page is added if all its variables are set
+  // Add a module's routes if all it's variables are set
   if (sitemode === 'all') {
     husky.activePages().forEach((Page, type) => {
-      // Add the page's routes
       Object.keys(Page.routes).forEach(path => {
         let newPath = path.startsWith('./')
           ? `/${type}/${path.replace('./', '')}`

@@ -1,6 +1,6 @@
 # Husky CMS
 
-Use [Trello](https://trello.com) as a CMS and use it to create & manage a website.
+Use [Trello](https://trello.com) as a CMS to create & manage a website.
 
 ## Features
 
@@ -116,7 +116,9 @@ The pug template is rendered inside the site skeleton, which has the theme loade
 
 Your plugin should expose a single function via `module.exports`, which takes a [husky instance](/server/husky.js) and [utils object](/server/utils/index.js) as parameters.
 
-Husky modifies [Koa](https://www.npmjs.com/package/koa)'s context
+If you want to serve static files, you can always mount them into `/app/static`.
+
+Husky modifies [Koa](https://www.npmjs.com/package/koa)'s context:
 
 field         | type   | use
 ------------- | ------ | ---
