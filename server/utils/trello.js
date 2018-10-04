@@ -4,7 +4,6 @@
 
 const axios = require('axios')
 const dayjs = require('dayjs')
-const marked = require('marked')
 
 const listsCache = new Map()
 
@@ -27,12 +26,6 @@ const trello = axios.create({
     token: process.env.TRELLO_TOKEN
   }
 })
-
-/** Process a trello card, rendering markdown and adding it's formatted timestampe */
-function processCard (card) {
-  card.content = marked(card.desc)
-  card.timestamp = dayjs(card.dateLastActivity).format('dddd D MMMM YYYY')
-}
 
 /** Fetch cards for a given Trello list */
 async function fetchCards (listId, noCache = false) {
@@ -58,4 +51,4 @@ async function fetchCards (listId, noCache = false) {
   return cards
 }
 
-module.exports = { listsCache, trello, processCard, fetchCards }
+module.exports = { listsCache, trello, fetchCards }

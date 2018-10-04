@@ -3,7 +3,7 @@
 // Adds a page which uses a trello list as a filterable project showcase
 //
 
-const { processCard, slug, fetchCards } = require('../utils')
+const { slug, fetchCards } = require('../utils')
 const projectListId = process.env.PROJECT_LIST
 
 /** Get the tags/users to filter for on an array or projects */
@@ -23,21 +23,20 @@ function getFilters (projects) {
 }
 
 /** Add custom fields onto project cards */
-function processProject (project, sitemode) {
-  processCard(project)
-  const base = sitemode === 'projects' ? '/' : '/projects/'
+function processProject (project, ctx) {
+  ctx.husky.processCard(project)
+  const base = ctx.sitemode === 'projects' ? '/' : '/projects/'
   project.href = base + slug(project.name)
 }
 
 /** A koa route to render a project detail or project index page */
 async function projectListRoute (ctx) {
-  let { sitemode, sitetree } = ctx
-  let projects = await fetchCards(projectListId, ctx.query.nocache !== undefined)
+  let projects = await fetchCards(projectListId, ctx.skipCache)
   
   // Get the parent page
-  let parent = sitetree.find(p => p.type === 'projects')
+  let parent = ctx.sitetree.find(p => p.type === 'projects')
   
-  projects.forEach(p => processProject(p, sitemode))
+  projects.forEach(p => processProject(p, ctx))
   
   // If not serving a specific project, return the index page
   if (!ctx.params.project) {
@@ -55,7 +54,7 @@ async function projectListRoute (ctx) {
 /** A koa route to serve the projects as a json array */
 async function projectJson (ctx, next) {
   let projects = await fetchCards(projectListId, ctx.skipCache)
-  projects.forEach(p => processProject(p, ctx.sitemode))
+  projects.forEach(p => processProject(p, ctx))
   ctx.body = { projects }
 }
 
@@ -67,8 +66,8 @@ module.exports = function (husky) {
     variables: [ 'PROJECT_LIST' ],
     routes: {
       '/projects.json': projectJson,
-      './': projectListRoute,
-      './:project': projectListRoute
+      './:project': projectListRoute,
+      './': projectListRoute
     }
   })
 }

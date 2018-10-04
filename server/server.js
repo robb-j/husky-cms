@@ -6,7 +6,6 @@ const koaStatic = require('koa-static')
 const koaMount = require('koa-mount')
 const json = require('koa-json')
 const cors = require('@koa/cors')
-const marked = require('marked')
 
 const utils = require('./utils')
 const { Husky } = require('./husky')
@@ -30,7 +29,7 @@ function makeSiteTree (pageCards, husky) {
   pages = pages.concat(pageCards.map(cardToTree))
   
   // Filter out the root and/or home page
-  return pages // .filter(p => p.href !== '/' && p.href !== '/home')
+  return pages
 }
 
 async function pageRoute (ctx) {
@@ -40,8 +39,8 @@ async function pageRoute (ctx) {
   let page = pages.find(p => slug(p.name) === pagename)
   
   if (page) {
-    let content = marked(page.desc)
-    ctx.renderPug('page', page.name, { page, content })
+    ctx.husky.processCard(page)
+    ctx.renderPug('page', page.name, { page })
   } else {
     ctx.notFound()
   }
