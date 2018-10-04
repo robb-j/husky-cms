@@ -14,7 +14,10 @@ const { slug, fetchCards, makeTemplates } = utils
 function makeSiteTree (pageCards, husky) {
   const sitemode = husky.getSitemode()
   const makeNode = (type, href, name) => ({ name, href, type })
-  const cardToTree = card => makeNode('page', `/${slug(card.name)}`, card.name)
+  const cardToTree = card => {
+    let href = `/${slug(card.name)}`
+    return makeNode('page', href === '/home' ? '/' : href, card.name)
+  }
   
   if (sitemode !== 'all') {
     return [ makeNode(sitemode, '/', husky.pages.get(sitemode).name) ]
