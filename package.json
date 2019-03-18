@@ -1,7 +1,7 @@
 {
   "name": "husky-cms",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Project setup by robb-j/node-base",
   "main": "src/index.js",
   "author": "robb-j",
