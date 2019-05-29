@@ -14,7 +14,7 @@ function blogRoute(husky) {
 
 // Register the plugin
 module.exports = function(husky) {
-  husky.registerPageType('blog', {
+  husky.registerPage('blog', {
     name: 'Blog',
     templates: ['blog'],
     variables: ['BLOG_LIST'],

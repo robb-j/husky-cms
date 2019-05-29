@@ -3,11 +3,16 @@
 // Also passed into module's for easy access w/o require-ing
 //
 
-const casex = require('casex')
+// const casex = require('casex')
 const { compilePug, makeTemplates } = require('./pug')
 
-// Convert human text toa 'url-slug'
-const slug = str => casex(str, 'ca-sa')
+// Convert human text to a 'url-slug'
+function slug(value) {
+  return value
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+}
 
 // Collect all the values from a specific field on map entries
 function collectArrayFromMap(map, key) {

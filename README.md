@@ -120,7 +120,7 @@ function route(ctx) {
 }
 
 module.exports = function(husky, utils) {
-  husky.registerPageType('my_page', {
+  husky.registerPage('my_page', {
     name: 'My Page',
     templates: ['my_template'],
     variables: ['MESSAGE'],

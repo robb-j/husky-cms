@@ -73,7 +73,13 @@ class Husky {
 
   /** Get the site mode based on the environemt vars set */
   getSitemode() {
-    if (process.env.PAGE_LIST) return 'all'
+    if (process.env.PAGE_LIST) return 'multi'
+    
+    // let active = this.activePages()
+    // 
+    // if (active.length > 1) return 'multi'
+    // 
+    // return active[0]
 
     let found = null
     this.pages.forEach((Page, type) => {
@@ -108,12 +114,12 @@ class Husky {
   }
 
   /** Register a new page type */
-  registerPageType(name, Page) {
-    Page.name = Page.name || casex(name, 'Ca Se')
+  registerPage(type, Page) {
+    Page.name = Page.name || casex(type, 'Ca Se')
     Page.variables = Page.variables || []
     Page.templates = Page.templates || []
     Page.routes = Page.routes || {}
-    this.pages.set(name, Page)
+    this.pages.set(type, Page)
   }
 
   /** Register a content type, a way of processing a card into html */

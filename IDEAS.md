@@ -9,7 +9,7 @@ This is a place to sketch out ideas for future features
 ```js
 module.exports = function myPlugin(Husky) {
   // Add a new page type
-  Husky.registerPageType('academic', {
+  Husky.registerPage('academic', {
     variables: ['PAPERS_LIST'],
     routes: {
       '/'(ctx, trello) {

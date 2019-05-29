@@ -24,8 +24,8 @@ function makeSiteTree(pageCards, husky) {
     return makeNode('page', href === '/home' ? '/' : href, card.name)
   }
 
-  // If in not in 'all' mode, show the single page
-  if (sitemode !== 'all') {
+  // If in not in 'multi' mode, show the single page
+  if (sitemode !== 'multi') {
     return [makeNode(sitemode, '/', husky.pages.get(sitemode).name)]
   }
 
@@ -143,7 +143,7 @@ function makeServer() {
 
   // If showing all pages, add any routes we can
   // Add a module's routes if all it's variables are set
-  if (sitemode === 'all') {
+  if (sitemode === 'multi') {
     husky.activePages().forEach((Page, type) => {
       for (let path of Object.keys(Page.routes)) {
       // Object.keys(Page.routes).forEach(path => {
