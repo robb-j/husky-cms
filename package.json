@@ -1,7 +1,7 @@
 {
   "name": "husky-cms",
   "private": true,
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Generate a website from the contents of your favourite Trello board",
   "repository": "unplatform/husky-cms",
   "author": "robb-j",
