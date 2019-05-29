@@ -12,6 +12,25 @@ Use [Trello](https://trello.com) as a CMS to create & manage a website.
 - Content caching so you don't get rate limited and page loads are fast
 - Plugin system for dynamically adding your own page types
 
+<!-- toc-head -->
+
+## Table of contents
+
+- [Features](#features)
+- [Setup](#setup)
+  - [Prerequisites](#prerequisites)
+  - [Steps](#steps)
+  - [Configuration](#configuration)
+  - [Plugins](#plugins)
+    - [Page plugins](#page-plugins)
+    - [Content plugins](#content-plugins)
+    - [Husky API](#husky-api)
+- [Development](#development)
+  - [Environment](#environment)
+- [Ideas & further work](#ideas--further-work)
+
+<!-- toc-tail -->
+
 ## Setup
 
 ### Prerequisites
@@ -40,12 +59,18 @@ Use [Trello](https://trello.com) as a CMS to create & manage a website.
 version: '3'
 
 services:
+  redis:
+    image: redis:4-alpine
+    restart: unless-stopped
+  
   husky-site:
     image: unplatform/husky-cms:latest
+    restart: unless-stopped
     ports:
       - 3000:3000
     environment:
       SITE_NAME: FancySite
+      REDIS_URL: redis://redis
       TRELLO_APP_KEY: your_trello_app_key
       TRELLO_TOKEN: your_trello_app_key
       PAGE_LIST: list_id_for_pages
@@ -171,11 +196,31 @@ This registers a plugin which adds the pageviews at the bottom of each page. Her
 | order     | number  | Where to put this content, 0 being earlier, 100 later |
 | noWrapper | boolean | If you don't want the content to be wrapped in a div  |
 
+#### Fetching cards
+
+Husky periodically fetches cards from Trello and puts them into redis at a predefined interval.
+Internally this uses the `husky.fetchCards(listId)` method.
+
+Whenever you call this method, husky will remember your `listId`
+and periodically fetch new cards.
+
+The default interval is 5000 milliseconds but you can override this
+by setting the `POLL_INTERVAL` environment variable.
+Set it to the number of milliseconds you want to wait between fetches.
+
+```js
+let cards = await husky.fetchCards('your_list_id')
+```
+
 ## Development
 
 ```bash
 # Setup your ENV, using the same environment variables from above
-touch .env
+cp .env.example .env
+
+# Startup a development redis database
+# -> Runs on port 6379 on localhosts
+docker-compose up -d
 
 # Startup the dev server
 # > This will watch for changes in /app and rebuild js/sass assets

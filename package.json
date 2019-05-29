@@ -14,7 +14,8 @@
     "start": "node server",
     "test": "jest",
     "build": "parcel build app/projects.js app/theme.sass",
-    "dev": "node tools/dev.js"
+    "dev": "node tools/dev.js",
+    "gen-toc": "md-toc -i"
   },
   "keywords": [],
   "dependencies": {
@@ -37,6 +38,7 @@
     "valid-env": "^1.0.0"
   },
   "devDependencies": {
+    "@robb_j/md-toc": "^0.3.0",
     "babel-core": "^6.26.3",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
