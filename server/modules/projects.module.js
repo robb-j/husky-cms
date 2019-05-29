@@ -7,7 +7,7 @@ const { slug, fetchCards } = require('../utils')
 const projectListId = process.env.PROJECT_LIST
 
 /** Get the tags/users to filter for on an array or projects */
-function getFilters (projects) {
+function getFilters(projects) {
   let allTags = new Map()
   let allUsers = new Map()
 
@@ -23,21 +23,21 @@ function getFilters (projects) {
 }
 
 /** Add custom fields onto project cards */
-function processProject (project, ctx) {
+function processProject(project, ctx) {
   ctx.husky.processCard(project)
   const base = ctx.sitemode === 'projects' ? '/' : '/projects/'
   project.href = base + slug(project.name)
 }
 
 /** A koa route to render a project detail or project index page */
-async function projectListRoute (ctx) {
+async function projectListRoute(ctx) {
   let projects = await fetchCards(projectListId, ctx.skipCache)
-  
+
   // Get the parent page
   let parent = ctx.sitetree.find(p => p.type === 'projects')
-  
+
   projects.forEach(p => processProject(p, ctx))
-  
+
   // If not serving a specific project, return the index page
   if (!ctx.params.project) {
     const filters = getFilters(projects)
@@ -52,18 +52,18 @@ async function projectListRoute (ctx) {
 }
 
 /** A koa route to serve the projects as a json array */
-async function projectJson (ctx, next) {
+async function projectJson(ctx, next) {
   let projects = await fetchCards(projectListId, ctx.skipCache)
   projects.forEach(p => processProject(p, ctx))
   ctx.body = { projects }
 }
 
 // Register the plugin
-module.exports = function (husky) {
+module.exports = function(husky) {
   husky.registerPageType('projects', {
     name: 'Projects',
-    templates: [ 'project', 'projectList' ],
-    variables: [ 'PROJECT_LIST' ],
+    templates: ['project', 'projectList'],
+    variables: ['PROJECT_LIST'],
     routes: {
       '/projects.json': projectJson,
       './:project': projectListRoute,

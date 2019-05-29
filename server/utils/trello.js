@@ -8,12 +8,13 @@ const dayjs = require('dayjs')
 const listsCache = new Map()
 
 /** See if a list's card are already cached locally */
-function checkListCache (listId) {
+function checkListCache(listId) {
   let hit = listsCache.get(listId)
   if (!hit) return null
-  
+
   let { expires, cards } = hit
-  return dayjs(expires).isBefore(dayjs()) || process.env.NODE_ENV === 'development'
+  return dayjs(expires).isBefore(dayjs()) ||
+    process.env.NODE_ENV === 'development'
     ? null
     : cards
 }
@@ -28,26 +29,30 @@ const trello = axios.create({
 })
 
 /** Fetch cards for a given Trello list */
-async function fetchCards (listId, noCache = false) {
+async function fetchCards(listId, noCache = false) {
   if (!listId) return []
-  
+
   let cached = checkListCache(listId)
   if (!noCache && cached) return cached
-  
+
   let params = {
-    fields: 'desc,descData,labels,name,pos,url,idAttachmentCover,dateLastActivity',
+    fields:
+      'desc,descData,labels,name,pos,url,idAttachmentCover,dateLastActivity',
     attachments: true,
     members: true
   }
-  
-  let cards = await trello.get(`/lists/${listId}/cards`, { params })
+
+  let cards = await trello
+    .get(`/lists/${listId}/cards`, { params })
     .then(r => r.data)
-  
+
   listsCache.set(listId, {
-    expires: dayjs().add(10, 'minute').toDate(),
+    expires: dayjs()
+      .add(10, 'minute')
+      .toDate(),
     cards
   })
-  
+
   return cards
 }
 

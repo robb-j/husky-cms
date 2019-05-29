@@ -7,23 +7,30 @@ This is a place to sketch out ideas for future features
 **plugin.js**
 
 ```js
-module.exports = function myPlugin (Husky) {
-  
+module.exports = function myPlugin(Husky) {
   // Add a new page type
   Husky.registerPageType('academic', {
-    variables: [ 'PAPERS_LIST' ],
+    variables: ['PAPERS_LIST'],
     routes: {
-      '/' (ctx, trello) { /* ... */ },
-      '/:paper' (ctx, trello) { /* ... */ }
+      '/'(ctx, trello) {
+        /* ... */
+      },
+      '/:paper'(ctx, trello) {
+        /* ... */
+      }
     }
   })
-  
+
   // Add a content transformer
-  Husky.registerContentType('carousel', card => {
-    if (card.attachments.length === 0) return
-    let images = card.attachments.filter(a => a.type === 'image')
-    let inner = images.map(i => `<img src=${i.url}>`)
-    return `<div class="carousel">${inner}</div>`
-  }, { cardFields: 'attachments' })
+  Husky.registerContentType(
+    'carousel',
+    card => {
+      if (card.attachments.length === 0) return
+      let images = card.attachments.filter(a => a.type === 'image')
+      let inner = images.map(i => `<img src=${i.url}>`)
+      return `<div class="carousel">${inner}</div>`
+    },
+    { cardFields: 'attachments' }
+  )
 }
 ```

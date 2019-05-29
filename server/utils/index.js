@@ -11,7 +11,7 @@ const { compilePug, makeTemplates } = require('./pug')
 const slug = str => casex(str, 'ca-sa')
 
 // Collect all the values from a specific field on map entries
-function collectArrayFromMap (map, key) {
+function collectArrayFromMap(map, key) {
   let values = []
   map.forEach(item => {
     if (!Array.isArray(item[key])) return
@@ -21,5 +21,11 @@ function collectArrayFromMap (map, key) {
 }
 
 module.exports = {
-  slug, compilePug, listsCache, fetchCards, trello, collectArrayFromMap, makeTemplates
+  slug,
+  compilePug,
+  listsCache,
+  fetchCards,
+  trello,
+  collectArrayFromMap,
+  makeTemplates
 }
