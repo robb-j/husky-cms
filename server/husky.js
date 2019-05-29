@@ -23,6 +23,7 @@ class Husky {
       }
     })
     this.redis = redis.createClient(process.env.REDIS_URL)
+    this.utils = utils
     this.setupJobs()
   }
 
@@ -94,6 +95,8 @@ class Husky {
   /** Adds a content html onto a card using ordered content parsers */
   processCard(card) {
     let blobs = []
+    
+    card.slug = utils.slug(card.name)
 
     // Process each content type into a html blob
     this.contentTypes.forEach((Content, type) => {
@@ -115,7 +118,7 @@ class Husky {
 
   /** Register a new page type */
   registerPage(type, Page) {
-    Page.name = Page.name || casex(type, 'Ca Se')
+    Page.name = utils.undefOr(Page.name, casex(type, 'Ca Se'))
     Page.variables = Page.variables || []
     Page.templates = Page.templates || []
     Page.routes = Page.routes || {}

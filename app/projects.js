@@ -115,8 +115,8 @@ function renderProjects(projects) {
   )
 
   // Reset the project element and add new children
-  window.projects.innerHTML = ''
-  elems.forEach(elem => window.projects.append(elem))
+  window.projectGrid.innerHTML = ''
+  elems.forEach(elem => window.projectGrid.append(elem))
 }
 
 /** Render projects based on the given filters */
@@ -157,7 +157,7 @@ const toggleTag = (elem, idKey, set) => {
 }
 
 ;(() => {
-  if (!window.projectList || !window.projects) return
+  if (!window.projectList || !window.projectGrid) return
   if (!window.fetch) return window.alert(`Sorry, your browser doesn't support this site`)
 
   let projects = []

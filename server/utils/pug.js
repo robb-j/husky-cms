@@ -24,6 +24,10 @@ function compilePug(name) {
 
 /** Make a hash map of name: compiled pug template */
 function makeTemplates(templateNames) {
+  // Remove duplicates
+  templateNames = Array.from(new Set(templateNames))
+  
+  // Reduce the template names into a map of 'name' => compilled template
   return templateNames.reduce((templates, value) => {
     templates[value] = compilePug(value)
     return templates

@@ -31,9 +31,10 @@ function makeSiteTree(pageCards, husky) {
 
   // Add each active page to the tree
   let pages = []
-  husky.activePages().forEach((Page, type) => {
-    pages.push(makeNode(type, `/${type}`, Page.name))
-  })
+  husky.activePages()
+    .forEach((Page, type) => {
+      if (Page.name) pages.push(makeNode(type, `/${type}`, Page.name))
+    })
   
 
   // Add the processed page cards
@@ -105,6 +106,8 @@ function makeServer() {
     let base = {
       sitename: process.env.SITE_NAME,
       sitetree: this.sitetree,
+      customCss: process.env.CUSTOM_CSS_URL,
+      customJs: process.env.CUSTOM_JS_URL,
       title
     }
 

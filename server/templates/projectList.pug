@@ -1,12 +1,13 @@
 #projectList(data-endpoint=endpoint)
-  .hero.is-primary.is-small
-    .hero-body
-      .container
-        h1.title= pageTitle
-        h2.subtitle= pageSubtitle
+  if pageTitle || pageSubtitle
+    .hero.is-primary.is-small
+      .hero-body
+        .container
+          h1.title= pageTitle
+          h2.subtitle= pageSubtitle
   section.section
     .container
       .project-filters
         include includes/filters.pug
-        #projects
+        #projectGrid
   script(src="/dist/projects.js")
