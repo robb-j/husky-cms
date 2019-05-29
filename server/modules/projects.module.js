@@ -30,9 +30,10 @@ function processProject(project, ctx) {
 }
 
 /** A koa route to render a project detail or project index page */
-async function projectListRoute(husky) {
+function projectListRoute(husky) {
   return async ctx => {
     let projects = await husky.fetchCards(projectListId)
+    console.log('projects', projects)
 
     // Get the parent page
     let parent = ctx.sitetree.find(p => p.type === 'projects')
@@ -54,7 +55,7 @@ async function projectListRoute(husky) {
 }
 
 /** A koa route to serve the projects as a json array */
-async function projectJson(husky) {
+function projectJson(husky) {
   return async ctx => {
     let projects = await husky.fetchCards(projectListId, ctx.skipCache)
     projects.forEach(p => processProject(p, ctx))
@@ -69,9 +70,9 @@ module.exports = function(husky) {
     templates: ['project', 'projectList'],
     variables: ['PROJECT_LIST'],
     routes: {
-      '/projects.json': projectJson,
-      './:project': projectListRoute,
-      './': projectListRoute
+      '/projects.json': projectJson(husky),
+      './:project': projectListRoute(husky),
+      './': projectListRoute(husky)
     }
   })
 }

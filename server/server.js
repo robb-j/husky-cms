@@ -9,7 +9,7 @@ const cors = require('@koa/cors')
 
 const utils = require('./utils')
 const { Husky } = require('./husky')
-const { slug, fetchCards, makeTemplates } = utils
+const { slug, makeTemplates } = utils
 
 /** Make the sitetree using the current environment & an array of page cards */
 function makeSiteTree(pageCards, husky) {
@@ -34,6 +34,7 @@ function makeSiteTree(pageCards, husky) {
   husky.activePages().forEach((Page, type) => {
     pages.push(makeNode(type, `/${type}`, Page.name))
   })
+  
 
   // Add the processed page cards
   pages = pages.concat(pageCards.map(cardToTree))
@@ -130,7 +131,7 @@ function makeServer() {
   app.use(async (ctx, next) => {
     ctx.sitemode = sitemode
     ctx.skipCache = ctx.query.nocache !== undefined
-    ctx.pages = await fetchCards(process.env.PAGE_LIST, ctx.skipCache)
+    ctx.pages = await husky.fetchCards(process.env.PAGE_LIST, ctx.skipCache)
     ctx.sitetree = makeSiteTree(ctx.pages, husky)
     ctx.husky = husky
     await next()
@@ -144,13 +145,14 @@ function makeServer() {
   // Add a module's routes if all it's variables are set
   if (sitemode === 'all') {
     husky.activePages().forEach((Page, type) => {
-      Object.keys(Page.routes).forEach(path => {
+      for (let path of Object.keys(Page.routes)) {
+      // Object.keys(Page.routes).forEach(path => {
         let newPath = path.startsWith('./')
           ? `/${type}/${path.replace('./', '')}`
           : path
 
         router.get(newPath, Page.routes[path])
-      })
+      }
     })
 
     // Add the page routes
@@ -160,10 +162,12 @@ function makeServer() {
     let Page = husky.pages.get(sitemode)
 
     // If only showing a single page, just render that module's routes
-    Object.keys(Page.routes).forEach(path => {
+    for (let path of Object.keys(Page.routes)) {
+    // Object.keys(Page.routes).forEach(path => {
       let newPath = path.replace(/^\.\//, '/')
+      
       router.get(newPath, Page.routes[path])
-    })
+    }
   }
 
   // Setup the app with cors, serving /dist & /static and using the router
