@@ -36,7 +36,7 @@ function on(eventName, selector, callback) {
 
 /** Fetch projects from the server */
 function fetchProjects() {
-  return fetch('/projects.json')
+  return window.fetch(window.projectList.dataset.endpoint)
     .then(r => r.json())
     .then(r => r.projects)
 }
@@ -157,7 +157,8 @@ const toggleTag = (elem, idKey, set) => {
 }
 
 ;(() => {
-  if (!fetch) return alert(`Sorry, your browser doesn't support this site`)
+  if (!window.projectList || !window.projects) return
+  if (!window.fetch) return window.alert(`Sorry, your browser doesn't support this site`)
 
   let projects = []
 
