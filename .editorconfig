@@ -1,4 +1,7 @@
-# Editor config - For sharing IDE prefs ~ https://editorconfig.org/
+#
+# Editor config, for sharing IDE preferences (https://editorconfig.org)
+#
+
 root = true
 
 [*]
