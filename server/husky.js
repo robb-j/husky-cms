@@ -3,6 +3,8 @@ const { join } = require('path')
 
 const casex = require('casex')
 const dayjs = require('dayjs')
+const axios = require('axios')
+const redis = require('async-redis')
 
 const utils = require('./utils')
 const defaultModules = require('./modules')
@@ -12,6 +14,16 @@ class Husky {
   constructor() {
     this.pages = new Map()
     this.contentTypes = new Map()
+    this.requestedLists = new Set()
+    this.trello = axios.create({
+      baseURL: 'https://api.trello.com/1',
+      params: {
+        key: process.env.TRELLO_APP_KEY,
+        token: process.env.TRELLO_TOKEN
+      }
+    })
+    this.redis = redis.createClient(process.env.REDIS_URL)
+    this.setupJobs()
   }
 
   /** Load a Husky from a modules directory (absolute path) */
@@ -110,6 +122,41 @@ class Husky {
     if (Content.noWrapper === undefined) Content.noWrapper = false
     Content.type = name
     this.contentTypes.set(name, Content)
+  }
+  
+  setupJobs() {
+    let interval = parseInt(process.env.POLL_INTERVAL, 10)
+    if (Number.isNaN(interval)) interval = 5000
+    
+    setInterval(async () => {
+      for (let listId of this.requestedLists) {
+        await this.fetchAndCacheList(listId)
+      }
+    }, interval)
+  }
+  
+  async fetchAndCacheList(listId) {
+    const params = {
+      fields:
+        'desc,descData,labels,name,pos,url,idAttachmentCover,dateLastActivity',
+      attachments: true,
+      members: true
+    }
+    
+    const result = await this.trello.get(`/lists/${listId}/cards`, { params })
+    
+    return this.redis.set(`list_${listId}`, JSON.stringify(result.data))
+  }
+  
+  async fetchCards(listId) {
+    // If the list hasn't been requested, remember it and do an initial request
+    if (!this.requestedLists.has(listId)) {
+      this.requestedLists.add(listId)
+      await this.fetchAndCacheList(listId)
+    }
+    
+    // Return the parsed list
+    return JSON.parse(await this.redis.get(`list_${listId}`) || '[]')
   }
 }
 

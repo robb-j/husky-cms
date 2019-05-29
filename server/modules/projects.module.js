@@ -3,7 +3,7 @@
 // Adds a page which uses a trello list as a filterable project showcase
 //
 
-const { slug, fetchCards } = require('../utils')
+const { slug } = require('../utils')
 const projectListId = process.env.PROJECT_LIST
 
 /** Get the tags/users to filter for on an array or projects */
@@ -30,32 +30,36 @@ function processProject(project, ctx) {
 }
 
 /** A koa route to render a project detail or project index page */
-async function projectListRoute(ctx) {
-  let projects = await fetchCards(projectListId, ctx.skipCache)
+async function projectListRoute(husky) {
+  return async ctx => {
+    let projects = await husky.fetchCards(projectListId)
 
-  // Get the parent page
-  let parent = ctx.sitetree.find(p => p.type === 'projects')
+    // Get the parent page
+    let parent = ctx.sitetree.find(p => p.type === 'projects')
 
-  projects.forEach(p => processProject(p, ctx))
+    projects.forEach(p => processProject(p, ctx))
 
-  // If not serving a specific project, return the index page
-  if (!ctx.params.project) {
-    const filters = getFilters(projects)
-    ctx.renderPug('projectList', 'Projects', { projects, filters })
-  } else {
-    // If a specific project was specified, render that project
-    // Render it or fail if not found
-    let project = projects.find(p => slug(p.name) === ctx.params.project)
-    if (!project) return ctx.notFound()
-    ctx.renderPug('project', project.name, { project, parent })
+    // If not serving a specific project, return the index page
+    if (!ctx.params.project) {
+      const filters = getFilters(projects)
+      ctx.renderPug('projectList', 'Projects', { projects, filters })
+    } else {
+      // If a specific project was specified, render that project
+      // Render it or fail if not found
+      let project = projects.find(p => slug(p.name) === ctx.params.project)
+      if (!project) return ctx.notFound()
+      ctx.renderPug('project', project.name, { project, parent })
+    }
   }
 }
 
 /** A koa route to serve the projects as a json array */
-async function projectJson(ctx, next) {
-  let projects = await fetchCards(projectListId, ctx.skipCache)
-  projects.forEach(p => processProject(p, ctx))
-  ctx.body = { projects }
+async function projectJson(husky) {
+  return async ctx => {
+    let projects = await husky.fetchCards(projectListId, ctx.skipCache)
+    projects.forEach(p => processProject(p, ctx))
+    ctx.body = { projects }
+  }
 }
 
 // Register the plugin

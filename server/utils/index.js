@@ -4,7 +4,6 @@
 //
 
 const casex = require('casex')
-const { listsCache, trello, fetchCards } = require('./trello')
 const { compilePug, makeTemplates } = require('./pug')
 
 // Convert human text toa 'url-slug'
@@ -23,9 +22,6 @@ function collectArrayFromMap(map, key) {
 module.exports = {
   slug,
   compilePug,
-  listsCache,
-  fetchCards,
-  trello,
   collectArrayFromMap,
   makeTemplates
 }
