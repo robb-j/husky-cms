@@ -20,11 +20,13 @@ Use [Trello](https://trello.com) as a CMS to create & manage a website.
 - [Setup](#setup)
   - [Prerequisites](#prerequisites)
   - [Steps](#steps)
-  - [Configuration](#configuration)
+  - [Configuring](#configuring)
+  - [Page options](#page-options)
+  - [Multi page mode](#multi-page-mode)
   - [Plugins](#plugins)
     - [Page plugins](#page-plugins)
     - [Content plugins](#content-plugins)
-    - [Husky API](#husky-api)
+    - [Fetching cards](#fetching-cards)
 - [Development](#development)
   - [Environment](#environment)
 - [Ideas & further work](#ideas--further-work)
@@ -42,18 +44,16 @@ Use [Trello](https://trello.com) as a CMS to create & manage a website.
 ### Steps
 
 1. Get a Trello authentication key & token
-1. Get your `TRELLO_APP_KEY` from [trello.com/app-key](https://trello.com/app-key)
-1. Using your key, get your `TRELLO_TOKEN` from `https://trello.com/1/authorize?expiration=never&scope=read&response_type=token&name=Husky%20CMS&key=__YOUR_KEY_HERE__`
-1. Make a Trello board for your site's content
-
-- Add 4 lists: `Draft`, `Pages`, `Blog`, `Projects` and get the ids for them
-- You'll need to get the id's of your lists to pass them to Husky
-  1. Open a card on the list you want to get the id of
-  2. Add `.json` onto the end of the url & reload
-  3. Copy the text and paste it into a [JSON formatter](https://jsonformatter.curiousconcept.com)
-  4. Find the value for `idList` in the parsed json
-
-3. Create a **docker-compose.yml** using your auth and the ids of those lists
+2. Get your `TRELLO_APP_KEY` from [trello.com/app-key](https://trello.com/app-key)
+3. Using your key, get your `TRELLO_TOKEN` from `https://trello.com/1/authorize?expiration=never&scope=read&response_type=token&name=Husky%20CMS&key=__YOUR_KEY_HERE__`
+4. Make a Trello board for your site's content
+   - Add 4 lists: `Draft`, `Pages`, `Blog`, `Projects` and get the ids for them
+   - You'll need to get the id's of your lists to pass them to Husky
+     - Open a card on the list you want to get the id of
+     - Add `.json` onto the end of the url & reload
+     - Copy the text and paste it into a [JSON formatter](https://jsonformatter.curiousconcept.com)
+     - Find the value for `idList` in the parsed json
+5. Create a **docker-compose.yml** using your auth and the ids of those lists
 
 ```yml
 version: '3'
@@ -62,7 +62,7 @@ services:
   redis:
     image: redis:4-alpine
     restart: unless-stopped
-  
+
   husky-site:
     image: unplatform/husky-cms:latest
     restart: unless-stopped
@@ -84,15 +84,35 @@ services:
 
 6. Add cards to your board and see how the site changes
 
-### Configuration
+### Configuring
 
 You can set different combinations of lists.
 If you just have `PROJECT_LIST` or `BLOG_LIST` set, the site will just contain that page.
-If you have `PAGE_LIST` set, the site will show multiple pages
+If you have `PAGE_LIST` set, the site will show multiple pages.
 
 **Important** – When using `PAGE_LIST`, Husky uses a card named `Home` as the root page of your site.
 
-**Important** – When editing content add `?nocache` to your URL otherwise content won't update straight away
+### Page options
+
+Blog and project pages have extra environment variables to configure their render.
+
+`BLOG_SLUG` & `PROJECT_SLUG` are used to determine the url basis for the page and sub pages.
+
+`BLOG_NAME` & `PROJECT_NAME` is used for the navigation name.
+You can set to empty string, `''`, to the page from navigation.
+
+`BLOG_TITLE`, `BLOG_SUBTITLE`, `PROJECT_TITLE` & `PROJECT_SUBTITLE`
+configure the [bulma hero](https://bulma.io/documentation/layout/hero/)
+on the root page.
+Again you can set to an empty string, `''`, to hide the hero.
+
+### Multi page mode
+
+If you want more that one of a blog or project page you can set `BLOG_LIST` or `PROJECT_LIST`
+to a csv of ids instead of just one.
+
+When in multi-page mode, each list id becomes a root-level page with the index added on the end.
+For example, `/projects_1`, `/projects_2` and `/projects_1`.
 
 ### Plugins
 
