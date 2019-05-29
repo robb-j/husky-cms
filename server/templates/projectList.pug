@@ -1,12 +1,13 @@
-#projectList
-  .hero.is-primary.is-small
-    .hero-body
-      .container
-        h1.title Projects
-        h2.subtitle Latest projects and contributions
+#projectList(data-endpoint=endpoint)
+  if pageTitle || pageSubtitle
+    .hero.is-primary.is-small
+      .hero-body
+        .container
+          h1.title= pageTitle
+          h2.subtitle= pageSubtitle
   section.section
     .container
       .project-filters
         include includes/filters.pug
-        #projects
+        #projectGrid
   script(src="/dist/projects.js")

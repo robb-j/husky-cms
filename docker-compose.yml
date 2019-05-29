@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  # A data store for projects, lightweight and stored in memory
+  redis:
+    image: redis:4-alpine
+    restart: unless-stopped
+    ports:
+      - 6379:6379

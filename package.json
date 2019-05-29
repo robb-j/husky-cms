@@ -1,51 +1,73 @@
 {
   "name": "husky-cms",
   "private": true,
-  "version": "0.3.0",
-  "description": "Project setup by robb-j/node-base",
-  "main": "src/index.js",
+  "version": "1.1.0",
+  "description": "Generate a website from the contents of your favourite Trello board",
+  "repository": "unplatform/husky-cms",
   "author": "robb-j",
-  "license": "ISC",
+  "license": "MIT",
   "scripts": {
     "coverage": "jest --coverage",
-    "lint": "eslint src test",
+    "lint": "eslint src",
+    "prettier": "prettier --write '**/*.{js,json,css,md,ts,tsx}'",
     "postversion": "node tools/buildAndPush.js latest",
     "start": "node server",
     "test": "jest",
     "build": "parcel build app/projects.js app/theme.sass",
-    "dev": "node tools/dev.js"
+    "dev": "node tools/dev.js",
+    "gen-toc": "md-toc -i"
   },
+  "keywords": [],
   "dependencies": {
-    "@babel/polyfill": "^7.2.5",
-    "@koa/cors": "^2.2.3",
+    "@babel/polyfill": "^7.4.4",
+    "@koa/cors": "^3.0.0",
+    "async-redis": "^1.1.7",
     "axios": "^0.18.0",
-    "bulma": "^0.7.2",
+    "bulma": "^0.7.5",
     "casex": "^3.0.0",
-    "dayjs": "^1.8.0",
-    "dotenv": "^6.2.0",
+    "dayjs": "^1.8.14",
+    "dotenv": "^8.0.0",
     "koa": "^2.7.0",
     "koa-json": "^2.0.2",
     "koa-mount": "^4.0.0",
     "koa-router": "^7.4.0",
     "koa-send": "^5.0.0",
     "koa-static": "^5.0.0",
-    "marked": "^0.6.0",
-    "pug": "^2.0.3"
+    "marked": "^0.6.2",
+    "pug": "^2.0.3",
+    "valid-env": "^1.0.0"
   },
   "devDependencies": {
+    "@robb_j/md-toc": "^0.3.0",
     "babel-core": "^6.26.3",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-2": "^6.24.1",
-    "eslint": "^5.12.1",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.0.0",
     "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-node": "^8.0.1",
-    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
-    "jest": "^24.0.0",
-    "nodemon": "^1.18.9",
-    "parcel-bundler": "^1.12.2",
-    "sass": "^1.16.1"
+    "jest": "^24.8.0",
+    "nodemon": "^1.19.1",
+    "parcel-bundler": "^1.12.3",
+    "sass": "^1.20.1"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,md,ts,tsx}": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }

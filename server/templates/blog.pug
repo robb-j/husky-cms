@@ -1,12 +1,13 @@
 #blog
-  .hero.is-primary.is-small
-    .hero-body
-      .container
-        h1.title Blog
-        h2.subtitle Latest news &amp; updates
+  if pageTitle || pageSubtitle
+    .hero.is-primary.is-small
+      .hero-body
+        .container
+          h1.title= pageTitle
+          h2.subtitle= pageSubtitle
   section.section
-    .container
+    .container.blog-post-list
       each post in posts
-        .blog-post
+        .blog-post(id=post.slug)
           .content !{post.content}
           p.card-timestamp #{post.timestamp}

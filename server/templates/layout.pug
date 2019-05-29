@@ -4,12 +4,15 @@ head
   title #{title} | #{sitename}
   meta(charset="utf-8")
   meta(name="viewport" content="width=device-width, initial-scale=1")
-  link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Fira+Mono|Lato:400,700")
   link(rel="stylesheet", href="/dist/theme.css")
   link(rel="icon", href="/static/favicon.png")
+  if (customCss)
+    link(rel="stylesheet", href=customCss)
   
 body
   #app
     include ./includes/nav.pug
     | !{page}
     include ./includes/footer.pug
+  if (customJs)
+    script(type="text/javascript", src=customJs)
