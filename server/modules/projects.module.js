@@ -33,7 +33,6 @@ function processProject(project, ctx) {
 function projectListRoute(husky) {
   return async ctx => {
     let projects = await husky.fetchCards(projectListId)
-    console.log('projects', projects)
 
     // Get the parent page
     let parent = ctx.sitetree.find(p => p.type === 'projects')
