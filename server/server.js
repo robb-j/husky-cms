@@ -132,9 +132,13 @@ function makeServer() {
 
   // Add ctx fields for module's use later
   app.use(async (ctx, next) => {
-    ctx.sitemode = sitemode
+    ctx.sitemode = husky.getSitemode()
     ctx.skipCache = ctx.query.nocache !== undefined
-    ctx.pages = await husky.fetchCards(process.env.PAGE_LIST, ctx.skipCache)
+    if (process.env.PAGE_LIST) {
+      ctx.pages = await husky.fetchCards(process.env.PAGE_LIST, ctx.skipCache)
+    } else {
+      ctx.pages = []
+    }
     ctx.sitetree = makeSiteTree(ctx.pages, husky)
     ctx.husky = husky
     await next()

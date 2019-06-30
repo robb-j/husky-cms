@@ -73,7 +73,7 @@ module.exports = function(husky) {
 
   const { isSingular, listIds } = parseListIds('PROJECT_LIST')
   
-  const pageSlug = undefOr(process.env.PROJECT_SLUG, 'project')
+  const pageSlug = undefOr(process.env.PROJECT_SLUG, 'projects')
   const pageName = undefOr(process.env.PROJECT_NAME, 'Projects')
 
   const pageTitle = undefOr(process.env.PROJECT_TITLE, 'Projects')

@@ -152,9 +152,17 @@ class Husky {
       members: true
     }
     
-    const result = await this.trello.get(`/lists/${listId}/cards`, { params })
-    
-    return this.redis.set(`list_${listId}`, JSON.stringify(result.data))
+    try {
+      const result = await this.trello.get(`/lists/${listId}/cards`, { params })
+      
+      return this.redis.set(`list_${listId}`, JSON.stringify(result.data))
+    } catch (error) {
+      if (error.response) {
+        console.log(error.message, error.response.data)
+      } else {
+        console.log(error)
+      }
+    }
   }
   
   async fetchCards(listId) {

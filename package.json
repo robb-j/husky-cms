@@ -22,7 +22,7 @@
     "@babel/polyfill": "^7.4.4",
     "@koa/cors": "^3.0.0",
     "async-redis": "^1.1.7",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "bulma": "^0.7.5",
     "casex": "^3.0.0",
     "dayjs": "^1.8.14",
