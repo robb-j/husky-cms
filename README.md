@@ -64,7 +64,7 @@ services:
     restart: unless-stopped
 
   husky-site:
-    image: unplatform/husky-cms:latest
+    image: openlab/husky-cms:latest
     restart: unless-stopped
     ports:
       - 3000:3000
