@@ -15,7 +15,7 @@
     "test": "jest",
     "build": "parcel build app/projects.js app/theme.sass",
     "dev": "node tools/dev.js",
-    "gen-toc": "md-toc -i"
+    "gen-readme-toc": "md-toc -i"
   },
   "keywords": [],
   "dependencies": {

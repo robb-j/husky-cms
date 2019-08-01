@@ -1,6 +1,6 @@
 # Husky CMS
 
-Use [Trello](https://trello.com) as a CMS to create & manage a website.
+Use a [Trello](https://trello.com) board as a CMS to create & manage a website.
 
 ## Features
 
@@ -28,7 +28,12 @@ Use [Trello](https://trello.com) as a CMS to create & manage a website.
     - [Content plugins](#content-plugins)
     - [Fetching cards](#fetching-cards)
 - [Development](#development)
+  - [Setup](#setup)
+  - [Regular use](#regular-use)
+  - [Irregular use](#irregular-use)
   - [Environment](#environment)
+  - [Code formatting](#code-formatting)
+  - [Building the docker image](#building-the-docker-image)
 - [Ideas & further work](#ideas--further-work)
 
 <!-- toc-tail -->
@@ -99,20 +104,22 @@ Blog and project pages have extra environment variables to configure their rende
 `BLOG_SLUG` & `PROJECT_SLUG` are used to determine the url basis for the page and sub pages.
 
 `BLOG_NAME` & `PROJECT_NAME` is used for the navigation name.
-You can set to empty string, `''`, to the page from navigation.
+You can set to empty string, `''`, to hide the page from navigation.
 
 `BLOG_TITLE`, `BLOG_SUBTITLE`, `PROJECT_TITLE` & `PROJECT_SUBTITLE`
-configure the [bulma hero](https://bulma.io/documentation/layout/hero/)
-on the root page.
+configure the [bulma hero](https://bulma.io/documentation/layout/hero/) on the page.
 Again you can set to an empty string, `''`, to hide the hero.
 
 ### Multi page mode
 
 If you want more that one of a blog or project page you can set `BLOG_LIST` or `PROJECT_LIST`
-to a csv of ids instead of just one.
+to a comma seperated list of ids instead of just one.
+For example `'FIRST_ID,SECOND_ID,THIRD_ID'`
 
 When in multi-page mode, each list id becomes a root-level page with the index added on the end.
 For example, `/projects_1`, `/projects_2` and `/projects_1`.
+You can combine this with setting `PROJECT_NAME` or `BLOG_NAME` to an empty string `''`,
+to hide all the pages from the navigation.
 
 ### Plugins
 
@@ -160,7 +167,7 @@ And its corresponding template, **my_template.pug**
       h1.title Page says: #{message}
 ```
 
-This adds a custom page type, `my_page`, which shows when the `MESSAGE` environment variable is set. If only the `MESSAGE` variable is set, it will be the only and root page, `/` otherwise it will be at `/my_page` and appear as `My Page`.
+This adds a custom page type, `my_page`, which shows when the `MESSAGE` environment variable is set. If only the `MESSAGE` variable is set, it will be the only page, `/` otherwise it will be at `/my_page` and appear as `My Page`.
 
 The pug template is rendered inside the site skeleton, which has the theme loaded along with the nav bar and footer above and below it.
 
@@ -168,7 +175,9 @@ Your plugin should expose a single function via `module.exports`, which takes a 
 
 If you want to serve static files, you can always mount them into `/app/static`.
 
-Husky modifies [Koa](https://www.npmjs.com/package/koa)'s context:
+**Routing**
+
+Husky uses [Koa](https://www.npmjs.com/package/koa) under the hook and modifies its context:
 
 | field         | type   | use                                                    |
 | ------------- | ------ | ------------------------------------------------------ |
@@ -216,6 +225,13 @@ This registers a plugin which adds the pageviews at the bottom of each page. Her
 | order     | number  | Where to put this content, 0 being earlier, 100 later |
 | noWrapper | boolean | If you don't want the content to be wrapped in a div  |
 
+**Ordering**
+
+The ordering numbers are arbitrary and are rendered lowest first.
+The card's markdown is rendered at order `50`,
+so less than that will be before the markdown
+and more than that will be after.
+
 #### Fetching cards
 
 Husky periodically fetches cards from Trello and puts them into redis at a predefined interval.
@@ -234,10 +250,24 @@ let cards = await husky.fetchCards('your_list_id')
 
 ## Development
 
+### Setup
+
+To develop on this repo you will need to have [Docker](https://www.docker.com/) and
+[node.js](https://nodejs.org) installed on your dev machine and have an understanding of them.
+This guide assumes you have the repo checked out and are on macOS, but equivalent commands are available.
+
+You'll only need to follow this setup once for your dev machine.
+
 ```bash
 # Setup your ENV, using the same environment variables from above
 cp .env.example .env
+```
 
+### Regular use
+
+These are the commands you'll regularly run to develop the API, in no particular order.
+
+```bash
 # Startup a development redis database
 # -> Runs on port 6379 on localhosts
 docker-compose up -d
@@ -245,13 +275,38 @@ docker-compose up -d
 # Startup the dev server
 # > This will watch for changes in /app and rebuild js/sass assets
 # > This will NOT watch js for changes in /server, you need to restart it for that
-# > This will recompile .pug templates when NODE_ENV=development is set
+# > This will recompile .pug templates when NODE_ENV=development is set in your .env
 npm run dev
 
 # Deploy docker images
 # > Uses REGISTRY file & package version to tag the image and push to dockerhub
 # > More info: https://docs.npmjs.com/cli/version
 npm version # major | minor | patch
+
+# Stop the development redis database
+# -> Do this after you stop development
+docker-compose stop
+```
+
+### Irregular use
+
+These are commands you might need to run but probably won't, also in no particular order.
+
+```bash
+# Generate the table of contents for this readme
+# -> It'll replace content between the toc-head and toc-tail HTML comments
+npm run gen-readme-toc
+
+# Manually lint code with Eslint
+npm run lint
+
+# Manually format code
+# -> This repo is setup to automatically format code on git-stage
+npm run prettier
+
+# Run the application in production
+# -> This is the entrypoint in the docker image
+npm run start
 ```
 
 ### Environment
@@ -260,15 +315,36 @@ The server behaves differently depending on what `NODE_ENV` is set
 
 **development**
 
+> Run with `npm run dev`
+
 - `.pug` files will be compiled for each request, so you always get the latest version
 - Requests to trello will not be cached
 - `.js` & `.sass` assets will be hot-reloaded, meaning they will update in the browser on save
 
 **production**
 
+> Run with `npm run start`
+
 - `.pug` files will be compiled once at startup
-- Requests to Trello will be cached for 10 minutes
 - `.js` & `.css` assets will be optimised and minimised
+
+### Code formatting
+
+This repo uses [Prettier](https://prettier.io/) to automatically format code to a consistent standard.
+It works using the [husky](https://www.npmjs.com/package/husky)
+and [lint-staged](https://www.npmjs.com/package/lint-staged) packages to
+automatically format code whenever code is commited.
+This means that code that is pushed to the repo is always formatted to a consistent standard.
+
+You can manually run the formatter with `npm run prettier` if you want.
+
+Prettier is slightly configured in [.prettierrc.yml](/.prettierrc.yml)
+and also ignores files using [.prettierignore](/.prettierignore).
+
+### Building the docker image
+
+This repo uses an npm `postversion` script to automatically build a version of the docker image whenever the npm version changes.
+This is designed to be used with the `npm version` command so all docker images are [semantically versioned](https://semver.org/).
 
 ## Ideas & further work
 
@@ -279,5 +355,9 @@ The server behaves differently depending on what `NODE_ENV` is set
 - Use linked cards to nest pages and create a page hierarchy
 - Different page templates
 - Commenting / voting using the Trello API
-- Use `No-Cache` headers rather than `?nocache`
 - Use the board's theme to colour the site
+- A CLI to ease scraping trello for keys and ids
+
+---
+
+> This repo was setup with [robb-j/node-base](https://github.com/robb-j/node-base/)
