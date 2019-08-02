@@ -17,7 +17,7 @@ const { exec } = require('child_process')
 const { promisify } = require('util')
 const readFile = promisify(fs.readFile)
 
-const version = process.env.npm_package_version
+const { version } = require('../package.json')
 
 ;(async () => {
   try {
