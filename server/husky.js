@@ -22,8 +22,13 @@ class Husky {
         token: process.env.TRELLO_TOKEN
       }
     })
-    this.redis = redis.createClient(process.env.REDIS_URL)
+    if (process.env.REDIS_URL) {
+      this.redis = redis.createClient(process.env.REDIS_URL)
+    } else {
+      this.redis = undefined
+    }
     this.utils = utils
+    this.inMemoryCache = new Map()
     this.setupJobs()
   }
 
@@ -75,11 +80,11 @@ class Husky {
   /** Get the site mode based on the environemt vars set */
   getSitemode() {
     if (process.env.PAGE_LIST) return 'multi'
-    
+
     // let active = this.activePages()
-    // 
+    //
     // if (active.length > 1) return 'multi'
-    // 
+    //
     // return active[0]
 
     let found = null
@@ -95,7 +100,7 @@ class Husky {
   /** Adds a content html onto a card using ordered content parsers */
   processCard(card) {
     let blobs = []
-    
+
     card.slug = utils.slug(card.name)
 
     // Process each content type into a html blob
@@ -132,18 +137,18 @@ class Husky {
     Content.type = name
     this.contentTypes.set(name, Content)
   }
-  
+
   setupJobs() {
     let interval = parseInt(process.env.POLL_INTERVAL, 10)
     if (Number.isNaN(interval)) interval = 5000
-    
+
     setInterval(async () => {
       for (let listId of this.requestedLists) {
         await this.fetchAndCacheList(listId)
       }
     }, interval)
   }
-  
+
   async fetchAndCacheList(listId) {
     const params = {
       fields:
@@ -151,29 +156,62 @@ class Husky {
       attachments: true,
       members: true
     }
-    
+
     try {
       const result = await this.trello.get(`/lists/${listId}/cards`, { params })
-      
-      return this.redis.set(`list_${listId}`, JSON.stringify(result.data))
+
+      // return this.redis.set(`list_${listId}`, JSON.stringify(result.data))
+
+      return this.storeValue(`list_${listId}`, result.data)
     } catch (error) {
-      if (error.response) {
+      if (error.code === 'ENOTFOUND') {
+        console.log(`Cannot connect to ${this.trello.config.baseURL}`)
+      } else if (error.response) {
         console.log(error.message, error.response.data)
       } else {
         console.log(error)
       }
     }
   }
-  
+
   async fetchCards(listId) {
     // If the list hasn't been requested, remember it and do an initial request
     if (!this.requestedLists.has(listId)) {
       this.requestedLists.add(listId)
       await this.fetchAndCacheList(listId)
     }
-    
+
     // Return the parsed list
-    return JSON.parse(await this.redis.get(`list_${listId}`) || '[]')
+    return this.retrieveValue(`list_${listId}`, [])
+
+    // return JSON.parse(await this.redis.get(`list_${listId}`) || '[]')
+  }
+
+  async storeValue(key, value) {
+    console.log('#storeValue', key, value)
+    if (this.redis) return this.redis.set(key, JSON.stringify(value))
+    else return this.inMemoryCache.set(key, value)
+  }
+
+  async retrieveValue(key, defaultValue = undefined) {
+    console.log('#retrieveValue', key, defaultValue)
+    
+    let value
+    
+    if (this.redis) {
+      value = await this.redis.get(key)
+      if (value) value = JSON.parse(value)
+    } else {
+      value = this.inMemoryCache.get(key)
+    }
+    
+    // let value = this.redis
+    //   ? await this.redis.get(key)
+    //   : this.inMemoryCache.get(key)
+
+    if (defaultValue !== undefined && value === undefined) return defaultValue
+
+    return value
   }
 }
 
