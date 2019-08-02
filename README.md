@@ -293,6 +293,10 @@ docker-compose stop
 These are commands you might need to run but probably won't, also in no particular order.
 
 ```bash
+# Generate js and css assets using parcel-bundler
+# -> Writes them to the dist/ folder
+npm run build
+
 # Generate the table of contents for this readme
 # -> It'll replace content between the toc-head and toc-tail HTML comments
 npm run gen-readme-toc
@@ -306,6 +310,7 @@ npm run prettier
 
 # Run the application in production
 # -> This is the entrypoint in the docker image
+# -> It assumes assets are built into dist/
 npm run start
 ```
 
