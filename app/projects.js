@@ -174,7 +174,7 @@ const toggleTag = (elem, idKey, set) => {
   })
 
   // Toggle user selection on click & re-render
-  on('click', '#filters .by-user .tag', (e, elem) => {
+  on('click', '#filters .by-user .member-tag', (e, elem) => {
     toggleTag(elem, 'user', filters.users)
     updateFilters(projects, filters)
   })

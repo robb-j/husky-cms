@@ -75,11 +75,11 @@ class Husky {
   /** Get the site mode based on the environemt vars set */
   getSitemode() {
     if (process.env.PAGE_LIST) return 'multi'
-    
+
     // let active = this.activePages()
-    // 
+    //
     // if (active.length > 1) return 'multi'
-    // 
+    //
     // return active[0]
 
     let found = null
@@ -95,7 +95,9 @@ class Husky {
   /** Adds a content html onto a card using ordered content parsers */
   processCard(card) {
     let blobs = []
-    
+
+    console.log(card)
+
     card.slug = utils.slug(card.name)
 
     // Process each content type into a html blob
@@ -112,8 +114,18 @@ class Husky {
     // Join up the blobs, optionally wrapping in a div, and place it on the card
     card.content = blobs.map(b => (b.noWrapper ? b.content : wrap(b))).join('')
 
+
     // Also add the timestamp to the card
     card.timestamp = dayjs(card.dateLastActivity).format('dddd D MMMM YYYY')
+
+    // Add custom fields like timeline dates
+    if(card.customFieldItems) {
+      if (card.customFieldItems.length != 0){
+        let timeline_date = card.customFieldItems.find(o => o.idCustomField === process.env.DATE_ID)
+        card.date = dayjs(timeline_date.value.date).format('dddd D MMMM YYYY')
+      }
+    }
+
   }
 
   /** Register a new page type */
@@ -132,29 +144,30 @@ class Husky {
     Content.type = name
     this.contentTypes.set(name, Content)
   }
-  
+
   setupJobs() {
     let interval = parseInt(process.env.POLL_INTERVAL, 10)
     if (Number.isNaN(interval)) interval = 5000
-    
+
     setInterval(async () => {
       for (let listId of this.requestedLists) {
         await this.fetchAndCacheList(listId)
       }
     }, interval)
   }
-  
+
   async fetchAndCacheList(listId) {
     const params = {
       fields:
-        'desc,descData,labels,name,pos,url,idAttachmentCover,dateLastActivity',
+        'desc,descData,labels,name,pos,url,idAttachmentCover,dateLastActivity,',
       attachments: true,
-      members: true
+      members: true,
+      customFieldItems: true
     }
-    
+
     try {
       const result = await this.trello.get(`/lists/${listId}/cards`, { params })
-      
+
       return this.redis.set(`list_${listId}`, JSON.stringify(result.data))
     } catch (error) {
       if (error.response) {
@@ -164,14 +177,14 @@ class Husky {
       }
     }
   }
-  
+
   async fetchCards(listId) {
     // If the list hasn't been requested, remember it and do an initial request
     if (!this.requestedLists.has(listId)) {
       this.requestedLists.add(listId)
       await this.fetchAndCacheList(listId)
     }
-    
+
     // Return the parsed list
     return JSON.parse(await this.redis.get(`list_${listId}`) || '[]')
   }

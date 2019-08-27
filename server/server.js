@@ -35,7 +35,7 @@ function makeSiteTree(pageCards, husky) {
     .forEach((Page, type) => {
       if (Page.name) pages.push(makeNode(type, `/${type}`, Page.name))
     })
-  
+
 
   // Add the processed page cards
   pages = pages.concat(pageCards.map(cardToTree))
@@ -64,7 +64,7 @@ function makeServer() {
   let husky = Husky.from(join(__dirname, '..', 'plugins'))
 
   // Find missing configuration
-  const requiredConfig = ['TRELLO_APP_KEY', 'TRELLO_TOKEN', 'SITE_NAME']
+  const requiredConfig = ['TRELLO_APP_KEY', 'TRELLO_TOKEN', 'SITE_NAME', 'SITE_OWNER', 'OWNER_LINK']
   const missing = requiredConfig.filter(name => process.env[name] === undefined)
 
   if (missing.length > 0) {
@@ -88,6 +88,7 @@ function makeServer() {
     'layout',
     'page',
     'blog',
+    'timeline',
     'notFound',
     ...husky.templates
   ])
@@ -105,6 +106,8 @@ function makeServer() {
 
     let base = {
       sitename: process.env.SITE_NAME,
+      siteowner: process.env.SITE_OWNER,
+      ownerlink: process.env.OWNER_LINK,
       sitetree: this.sitetree,
       customCss: process.env.CUSTOM_CSS_URL,
       customJs: process.env.CUSTOM_JS_URL,
@@ -172,7 +175,7 @@ function makeServer() {
     for (let path of Object.keys(Page.routes)) {
     // Object.keys(Page.routes).forEach(path => {
       let newPath = path.replace(/^\.\//, '/')
-      
+
       router.get(newPath, Page.routes[path])
     }
   }

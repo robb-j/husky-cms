@@ -3,15 +3,21 @@
 if (filters.tags.length > 0 || filters.users.length > 0)
   #filters
     h3.title.is-4 Filter projects
-    
+
     if filters.tags.length > 0
       label by tag
       .tags.by-tag
         each tag in filters.tags
           span.tag(data-tag=tag.id) ##{tag.name || tag.color}
-    
+
     if filters.users.length > 0
-      label by user
+      label by contributor
       .tags.by-user
         each user in filters.users
-          span.tag(data-user=user.id) @#{user.fullName}
+          span.member-tag(data-user=user.id)
+            if user.avatarUrl
+              img(src=`${user.avatarUrl}/50.png`)
+            else
+              .member
+                span.member-initials #{user.initials}
+              

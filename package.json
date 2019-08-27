@@ -24,6 +24,7 @@
     "async-redis": "^1.1.7",
     "axios": "^0.18.1",
     "bulma": "^0.7.5",
+    "bulma-timeline": "^3.0.4",
     "casex": "^3.0.0",
     "dayjs": "^1.8.15",
     "dotenv": "^8.0.0",
