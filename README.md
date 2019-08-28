@@ -55,18 +55,12 @@ Use a [Trello](https://trello.com) board as a CMS to create & manage a website.
 2. Get your `TRELLO_APP_KEY` from [trello.com/app-key](https://trello.com/app-key)
 3. Using your key, get your `TRELLO_TOKEN` from `https://trello.com/1/authorize?expiration=never&scope=read&response_type=token&name=Husky%20CMS&key=__YOUR_KEY_HERE__`
 4. Make a Trello board for your site's content
-   - Add 5 lists: `Draft`, `Pages`, `Blog`, `Projects`, `Timeline` and get the ids for them
+   - Add 5 lists: `Draft`, `Pages`, `Blog`, `Projects` and get the ids for them
      - Open a card on the list you want to get the id of
      - Add `.json` onto the end of the url & reload
      - Copy the text and paste it into a [JSON formatter](https://jsonformatter.curiousconcept.com)
      - Find the value for `idList` in the parsed json
-5. Enable [Custom Fields](https://trello.com/b/ssZMnPTq/projectscms/power-up/56d5e249a98895a9797bebb9) under Power-Ups for board *
-   - Add `New Field` named `Date` with type `Date`
-   - Add card with `Date` to `Timeline` list and open it
-   - Add `.json` onto the end of the url & reload
-   - Copy the text and paste it into a [JSON formatter](https://jsonformatter.curiousconcept.com)
-   - Find the value for `idCustomField` for `Date` in the parsed json
-6. Create a **docker-compose.yml** using your auth and the ids of those lists
+5. Create a **docker-compose.yml** using your auth and the ids of those lists
 
 ```yml
 version: '3'
@@ -92,7 +86,7 @@ services:
       PROJECT_LIST: list_id_for_projects
       BLOG_LIST: list_id_for_blog_posts
       TIMELINE_LIST: list_id_for_timeline
-      DATE_ID: custom_field_id
+      TIMELINE_DATE_ID: custom_field_id
 ```
 
 4. Run `docker-compose up -d`
@@ -111,7 +105,9 @@ If you have `PAGE_LIST` set, the site will show multiple pages.
 
 #### Branding
 
-You can replace `brand.svg`,`timeline_logo.svg` and `favicon.png` with your branding.
+To replace site name with your brand use `CUSTOM_BRAND_URL` to point to image of your logo.
+
+To replace timeline marker with your custom image use `CUSTOM_TIMELINE_MARKER_URL` to point to your marker.
 
 ### Page options
 
@@ -139,7 +135,17 @@ to hide all the pages from the navigation.
 
 ### Timeline
 
-if you want to add milestones to your timeline then add a card with no `Date` parameter set. The title of the card will be rendered as milestone on the timeline.
+Timeline uses [Custom Fields](https://trello.com/b/ssZMnPTq/projectscms/power-up/56d5e249a98895a9797bebb9) Power-Ups and `Date` custom field. If using free version of Trello you can only use ONLY one Power-Up on a board.
+
+Setup timeline
+   - Enable Custom Fields Power-Up on your board
+   - Add `New Field` named `Date` with type `Date`
+   - Add card with `Date` to `Timeline` list and open it
+   - Add `.json` onto the end of the url & reload
+   - Copy the text and paste it into a [JSON formatter](https://jsonformatter.curiousconcept.com)
+   - Find the value for `idCustomField` for `Date` in the parsed json
+
+If you want to add milestones to your timeline then add a card with no `Date` parameter set. The `title` of the card will be rendered as milestone on the timeline.
 
 
 ### Plugins

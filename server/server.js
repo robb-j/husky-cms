@@ -64,7 +64,7 @@ function makeServer() {
   let husky = Husky.from(join(__dirname, '..', 'plugins'))
 
   // Find missing configuration
-  const requiredConfig = ['TRELLO_APP_KEY', 'TRELLO_TOKEN', 'SITE_NAME', 'SITE_OWNER', 'OWNER_LINK']
+  const requiredConfig = ['TRELLO_APP_KEY', 'TRELLO_TOKEN', 'SITE_NAME']
   const missing = requiredConfig.filter(name => process.env[name] === undefined)
 
   if (missing.length > 0) {
@@ -106,11 +106,13 @@ function makeServer() {
 
     let base = {
       sitename: process.env.SITE_NAME,
-      siteowner: process.env.SITE_OWNER,
+      ownername: process.env.OWNER_NAME,
       ownerlink: process.env.OWNER_LINK,
       sitetree: this.sitetree,
       customCss: process.env.CUSTOM_CSS_URL,
       customJs: process.env.CUSTOM_JS_URL,
+      customBrand: process.env.CUSTOM_BRAND_URL,
+      customTimelineMarker: process.env.CUSTOM_TIMELINE_MARKER_URL,
       title
     }
 

@@ -11,8 +11,11 @@
         each post in posts
           if post.date
             .timeline-item.is-primary(id=post.slug)
-              .timeline-marker.is-primary.is-image.is-32x32
-                img(src="/static/timeline_logo.svg")
+              if customTimelineMarker
+                .timeline-marker.is-primary.is-image.is-32x32
+                  img(src=`${customTimelineMarker}`)
+              else
+                .timeline-marker.is-primary
               .timeline-content
                 p.heading #{post.date}
                 p.content !{post.content}

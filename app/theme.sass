@@ -46,9 +46,13 @@ $navbar-height: 0
 
 nav.primary
   background-color: $primary
-  padding: 1.5rem 1.5rem
+  padding: 0.25rem 1.5rem
   font-size: 1.2rem
   .brand
+    color: $white
+    font-size: 1.3em
+    padding-right: 0.5rem
+  .brand-logo
     width: 53px
     height: 28px
     display: inline-block
@@ -58,6 +62,7 @@ nav.primary
     top: .75rem
     z-index: 10
   .pages
+    float: right
     a
       color: $white
       font-size: 0.8em
@@ -95,41 +100,37 @@ footer
       color: $primary-invert
   .member-tag
     cursor: pointer
-    padding: 0.5rem
+    padding: 0.2rem
+    img
+      border: 0.2em solid $white
+      border-radius: 50%
     &.is-active > img
       border: 0.2em solid $primary
-    img
-      border-radius: 50%
-    &.is-active .member > span
+    &.is-active .member
       border: 0.2em solid $primary
       border-radius: 50%
 
     .member
         background-color: #dfe1e6
-        border-radius: 25em
+        border: 0.2em solid $white
+        border-radius: 50%
         color: #172b4d
         cursor: pointer
         display: block
         float: left
-        height: 50px
+        height: 54px
         margin: 0 4px 4px 0
         overflow: visible
         position: relative
-        width: 50px
-        text-decoration: none
-        -webkit-user-select: none
-        -moz-user-select: none
-        -ms-user-select: none
-        user-select: none
+        width: 54px
         z-index: 0
 
     .member-initials
         display: block
-        font-size: 16px
+        font-size: 1em
         font-weight: 700
-        height: 50px
         left: 0
-        line-height: 50px
+        line-height: 3em
         overflow: hidden
         position: absolute
         text-align: center

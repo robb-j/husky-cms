@@ -96,8 +96,6 @@ class Husky {
   processCard(card) {
     let blobs = []
 
-    console.log(card)
-
     card.slug = utils.slug(card.name)
 
     // Process each content type into a html blob
