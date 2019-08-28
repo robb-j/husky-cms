@@ -16,10 +16,10 @@ function timelineRoute(husky, listId, options) {
 
 // Register the plugin
 module.exports = function(husky) {
-  if (!process.env.TIMELINE_LIST || !process.env.DATE_ID) return
+  if (!process.env.TIMELINE_LIST || !process.env.TIMELINE_DATE_ID) return
 
   const { isSingular, listIds } = parseListIds('TIMELINE_LIST')
-  const dateId = process.env.DATE_ID
+  const dateId = process.env.TIMELINE_DATE_ID
 
   // Get the page slug and name from the environment, or use a default
   const pageSlug = undefOr(process.env.TIMELINE_SLUG, 'timeline')
