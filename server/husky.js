@@ -116,11 +116,13 @@ class Husky {
     // Also add the timestamp to the card
     card.timestamp = dayjs(card.dateLastActivity).format('dddd D MMMM YYYY')
 
-    // Add custom fields like timeline dates
+    // Add custom fields like
     if(card.customFieldItems) {
       if (card.customFieldItems.length != 0){
-        let timeline_date = card.customFieldItems.find(o => o.idCustomField === process.env.DATE_ID)
-        card.date = dayjs(timeline_date.value.date).format('dddd D MMMM YYYY')
+        let card_date = card.customFieldItems.find(o => o.idCustomField === process.env.TIMELINE_DATE_ID)
+        if (card_date) {
+            card.date = dayjs(card_date.value.date).format('dddd D MMMM YYYY')
+        }
       }
     }
 
