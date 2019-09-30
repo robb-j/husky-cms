@@ -22,6 +22,7 @@ $navbar-height: 0
 @import ~bulma/sass/layout/_all
 @import ~bulma/sass/components/breadcrumb
 
+@import ~bulma-timeline/dist/css/bulma-timeline
 
 //
 // Layout - How the page is laid out
@@ -51,7 +52,17 @@ nav.primary
     color: $white
     font-size: 1.3em
     padding-right: 0.5rem
+  .brand-logo
+    width: 53px
+    height: 28px
+    display: inline-block
+    background-size: contain
+    position: fixed
+    left: .75rem
+    top: .75rem
+    z-index: 10
   .pages
+    float: right
     a
       color: $white
       font-size: 0.8em
@@ -87,6 +98,44 @@ footer
       text-decoration: underline
       background-color: $primary
       color: $primary-invert
+  .member-tag
+    cursor: pointer
+    padding: 0.2rem
+    img
+      border: 0.2em solid $white
+      border-radius: 50%
+    &.is-active > img
+      border: 0.2em solid $primary
+    &.is-active .member
+      border: 0.2em solid $primary
+      border-radius: 50%
+
+    .member
+        background-color: #dfe1e6
+        border: 0.2em solid $white
+        border-radius: 50%
+        color: #172b4d
+        cursor: pointer
+        display: block
+        float: left
+        height: 54px
+        margin: 0 4px 4px 0
+        overflow: visible
+        position: relative
+        width: 54px
+        z-index: 0
+
+    .member-initials
+        display: block
+        font-size: 1em
+        font-weight: 700
+        left: 0
+        line-height: 3em
+        overflow: hidden
+        position: absolute
+        text-align: center
+        top: 0
+        width: 100%
 
 .blog-post
   margin-bottom: 1em
@@ -115,7 +164,7 @@ footer
       width: 33%
     +mobile
       width: 100%
-  
+
 .project-item
   padding: 0.5rem
   display: flex
@@ -137,3 +186,6 @@ footer
     padding: 0.5em
   &.no-cover .cover
     background: repeating-linear-gradient(45deg, $white-bis, $white-bis 10px, $white-ter 10px, $white-ter 20px)
+
+.timeline .timeline-header .milestone
+  text-transform: uppercase

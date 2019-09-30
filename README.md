@@ -11,6 +11,7 @@ Use a [Trello](https://trello.com) board as a CMS to create & manage a website.
 - Configurable structure, showing only the pages you want
 - Content caching so you don't get rate limited and page loads are fast
 - Plugin system for dynamically adding your own page types
+- Setup a timeline, which is a Trello list, then add events and milestones
 
 <!-- toc-head -->
 
@@ -21,8 +22,10 @@ Use a [Trello](https://trello.com) board as a CMS to create & manage a website.
   - [Prerequisites](#prerequisites)
   - [Steps](#steps)
   - [Configuring](#configuring)
+    - [Branding](#branding)
   - [Page options](#page-options)
   - [Multi page mode](#multi-page-mode)
+  - [Timeline](#timeline)
   - [Plugins](#plugins)
     - [Page plugins](#page-plugins)
     - [Content plugins](#content-plugins)
@@ -52,8 +55,7 @@ Use a [Trello](https://trello.com) board as a CMS to create & manage a website.
 2. Get your `TRELLO_APP_KEY` from [trello.com/app-key](https://trello.com/app-key)
 3. Using your key, get your `TRELLO_TOKEN` from `https://trello.com/1/authorize?expiration=never&scope=read&response_type=token&name=Husky%20CMS&key=__YOUR_KEY_HERE__`
 4. Make a Trello board for your site's content
-   - Add 4 lists: `Draft`, `Pages`, `Blog`, `Projects` and get the ids for them
-   - You'll need to get the id's of your lists to pass them to Husky
+   - Add 5 lists: `Draft`, `Pages`, `Blog`, `Projects` and get the ids for them
      - Open a card on the list you want to get the id of
      - Add `.json` onto the end of the url & reload
      - Copy the text and paste it into a [JSON formatter](https://jsonformatter.curiousconcept.com)
@@ -75,12 +77,16 @@ services:
       - 3000:3000
     environment:
       SITE_NAME: FancySite
+      SITE_OWNER: AwesomeCompany
+      OWNER_LINK: link_to_website
       REDIS_URL: redis://redis
       TRELLO_APP_KEY: your_trello_app_key
       TRELLO_TOKEN: your_trello_app_key
       PAGE_LIST: list_id_for_pages
       PROJECT_LIST: list_id_for_projects
       BLOG_LIST: list_id_for_blog_posts
+      TIMELINE_LIST: list_id_for_timeline
+      TIMELINE_DATE_ID: custom_field_id
 ```
 
 4. Run `docker-compose up -d`
@@ -92,34 +98,55 @@ services:
 ### Configuring
 
 You can set different combinations of lists.
-If you just have `PROJECT_LIST` or `BLOG_LIST` set, the site will just contain that page.
+If you just have `PROJECT_LIST`, `BLOG_LIST` or `TIMELINE_LIST` set, the site will just contain that page.
 If you have `PAGE_LIST` set, the site will show multiple pages.
 
 **Important** – When using `PAGE_LIST`, Husky uses a card named `Home` as the root page of your site.
 
+#### Branding
+
+To replace site name with your brand use `CUSTOM_BRAND_URL` to point to image of your logo.
+
+To replace timeline marker with your custom image use `CUSTOM_TIMELINE_MARKER_URL` to point to your marker.
+
 ### Page options
 
-Blog and project pages have extra environment variables to configure their render.
+Blog, timeline and project pages have extra environment variables to configure their render.
 
-`BLOG_SLUG` & `PROJECT_SLUG` are used to determine the url basis for the page and sub pages.
+`BLOG_SLUG`, `TIMELINE_SLUG` & `PROJECT_SLUG` are used to determine the url basis for the page and sub pages.
 
-`BLOG_NAME` & `PROJECT_NAME` is used for the navigation name.
+`BLOG_NAME`, `TIMELINE_NAME` & `PROJECT_NAME` is used for the navigation name.
 You can set to empty string, `''`, to hide the page from navigation.
 
-`BLOG_TITLE`, `BLOG_SUBTITLE`, `PROJECT_TITLE` & `PROJECT_SUBTITLE`
+`BLOG_TITLE`, `BLOG_SUBTITLE`, `TIMELINE_TITLE`, `TIMELINE_SUBTITLE`, `PROJECT_TITLE` & `PROJECT_SUBTITLE`
 configure the [bulma hero](https://bulma.io/documentation/layout/hero/) on the page.
 Again you can set to an empty string, `''`, to hide the hero.
 
 ### Multi page mode
 
-If you want more that one of a blog or project page you can set `BLOG_LIST` or `PROJECT_LIST`
-to a comma seperated list of ids instead of just one.
+If you want more that one of a blog, timeline or project page you can set `BLOG_LIST`, `TIMELINE_LIST` or `PROJECT_LIST`
+to a comma separated list of ids instead of just one.
 For example `'FIRST_ID,SECOND_ID,THIRD_ID'`
 
 When in multi-page mode, each list id becomes a root-level page with the index added on the end.
 For example, `/projects_1`, `/projects_2` and `/projects_1`.
-You can combine this with setting `PROJECT_NAME` or `BLOG_NAME` to an empty string `''`,
+You can combine this with setting `PROJECT_NAME`, `TIMELINE_NAME` `BLOG_NAME` to an empty string `''`,
 to hide all the pages from the navigation.
+
+### Timeline
+
+Timeline uses [Custom Fields](https://trello.com/b/ssZMnPTq/projectscms/power-up/56d5e249a98895a9797bebb9) Power-Ups and `Date` custom field. If using free version of Trello you can only use ONLY one Power-Up on a board.
+
+Setup timeline
+   - Enable Custom Fields Power-Up on your board
+   - Add `New Field` named `Date` with type `Date`
+   - Add card with `Date` to `Timeline` list and open it
+   - Add `.json` onto the end of the url & reload
+   - Copy the text and paste it into a [JSON formatter](https://jsonformatter.curiousconcept.com)
+   - Find the value for `idCustomField` for `Date` in the parsed json
+
+If you want to add milestones to your timeline then add a card with no `Date` parameter set. The `title` of the card will be rendered as milestone on the timeline.
+
 
 ### Plugins
 
