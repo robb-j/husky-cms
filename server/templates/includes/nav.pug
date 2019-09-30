@@ -1,10 +1,10 @@
 nav.primary
   .container
-    if customBrand
-      a.brand-logo.is-monospace(href="/")
-        img(src=`${customBrand}`, alt=`${sitename}`)
-    else
-      a.brand.is-monospace(href="/") #{sitename}
+    a.brand(href="/")
+      if customBrand
+        img(src=customBrand, alt=sitename)
+      else
+        span.is-monospace(href="/") #{sitename}
     span.pages
       each page in sitetree
         if (page.href !== '/')

@@ -48,13 +48,25 @@ nav.primary
   background-color: $primary
   padding: 0.25rem 1.5rem
   font-size: 1.2rem
+  
+  > .container
+    display: flex
+    justify-content: space-between
+  
   .brand
     color: $white
     font-size: 1.3em
     padding-right: 0.5rem
+    display: block
+    
+    img
+      display: inline-block
+      max-height: 1.75rem
+      height: auto
+      max-width: 100%
+      vertical-align: text-bottom
+  
   .brand-logo
-    width: 53px
-    height: 28px
     display: inline-block
     background-size: contain
     position: fixed
@@ -62,7 +74,8 @@ nav.primary
     top: .75rem
     z-index: 10
   .pages
-    float: right
+    display: flex
+    align-items: center
     a
       color: $white
       font-size: 0.8em
