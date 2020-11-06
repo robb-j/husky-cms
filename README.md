@@ -77,7 +77,7 @@ services:
       - 3000:3000
     environment:
       SITE_NAME: FancySite
-      SITE_OWNER: AwesomeCompany
+      OWNER_NAME: AwesomeCompany
       OWNER_LINK: link_to_website
       REDIS_URL: redis://redis
       TRELLO_APP_KEY: your_trello_app_key
