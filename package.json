@@ -22,7 +22,7 @@
     "@babel/polyfill": "^7.6.0",
     "@koa/cors": "^3.0.0",
     "async-redis": "^1.1.7",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "bulma": "^0.7.5",
     "bulma-timeline": "^3.0.4",
     "casex": "^3.0.0",
