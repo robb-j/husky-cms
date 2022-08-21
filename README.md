@@ -37,6 +37,7 @@ Use a [Trello](https://trello.com) board as a CMS to create & manage a website.
   - [Environment](#environment)
   - [Code formatting](#code-formatting)
   - [Building the docker image](#building-the-docker-image)
+- [Archiving](#archiving)
 - [Ideas & further work](#ideas--further-work)
 
 <!-- toc-tail -->
@@ -377,6 +378,10 @@ and also ignores files using [.prettierignore](/.prettierignore).
 
 This repo uses an npm `postversion` script to automatically build a version of the docker image whenever the npm version changes.
 This is designed to be used with the `npm version` command so all docker images are [semantically versioned](https://semver.org/).
+
+## Archiving
+
+If you want to archive a husky-cms site, [here's a blog post](https://wp.sjmf.in/?p=292) which shows how you can do that
 
 ## Ideas & further work
 
